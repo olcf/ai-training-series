@@ -1,0 +1,18 @@
+#BSUB -P stf218
+#BSUB -q debug
+#BSUB -W 0:30
+#BSUB -nnodes 2
+#BSUB -J ddp-pretrained-2
+#BSUB -o ddp-pretrained-2-%J.o
+#BSUB -e ddp-pretrained-2-%J.e
+
+module load open-ce
+export TORCH_HOME=/gpfs/alpine/proj-shared/med115/sajal/pywsi/model
+
+export http_proxy=http://proxy.ccs.ornl.gov:3128/
+export https_proxy=https://proxy.ccs.ornl.gov:3128/
+
+export OMP_NUM_THREADS=4
+export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5
+
+jsrun -n 2 --tasks_per_rs 6 --cpu_per_rs 42 --gpu_per_rs 6 --rs_per_host 1 --latency_priority CPU-CPU --launch_distribution packed --bind packed:1 python resnet_classifier_multinode.py
