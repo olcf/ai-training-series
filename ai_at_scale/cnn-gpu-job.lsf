@@ -14,4 +14,4 @@ export https_proxy=https://proxy.ccs.ornl.gov:3128/
 export OMP_NUM_THREADS=4
 export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5
 
-time jsrun -n 1 --tasks_per_rs 1 --cpu_per_rs 42 --gpu_per_rs 1 --rs_per_host 1 --latency_priority CPU-CPU --launch_distribution packed --bind packed:1 python cnn_classifier_gpu.py
+time jsrun -n 1 --tasks_per_rs 1 --cpu_per_rs 42 --gpu_per_rs 1 --rs_per_host 1 --latency_priority CPU-CPU --launch_distribution packed --bind packed:1 python3 -u cnn_classifier_gpu.py

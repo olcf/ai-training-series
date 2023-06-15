@@ -9,4 +9,4 @@
 module load open-ce
 export OMP_NUM_THREADS=4
 
-time jsrun -n 1 --tasks_per_rs 1 --cpu_per_rs 42 --rs_per_host 1 --latency_priority CPU-CPU --launch_distribution packed --bind packed:1 python cnn_classifier.py
+time jsrun -n 1 --tasks_per_rs 1 --cpu_per_rs 42 --rs_per_host 1 --latency_priority CPU-CPU --launch_distribution packed --bind packed:1 python3 -u cnn_classifier.py
