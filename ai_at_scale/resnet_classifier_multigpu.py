@@ -98,22 +98,28 @@ class CNN(nn.Module):
 
 batch_size = 32
 
-train_data_dir = "/gpfs/alpine/world-shared/stf218/sajal/stemdl-data/train"
-test_data_dir = "/gpfs/alpine/world-shared/stf218/sajal/stemdl-data/test"
+#train_data_dir = "/gpfs/alpine/world-shared/stf218/sajal/stemdl-data/train"
+#test_data_dir = "/gpfs/alpine/world-shared/stf218/sajal/stemdl-data/test"
+
+train_data_dir = "/gpfs/wolf/world-shared/trn018/sajal/data/train"
+test_data_dir = "/gpfs/wolf/world-shared/trn018/sajal/data/test"
 
 train_dataset = NPZDataset(train_data_dir)
 test_dataset = NPZDataset(test_data_dir)
 train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
 test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
 
-device = "cuda"
+#device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 #model = CNN()
+device = "cuda"
+
 num_classes = 231
 model = models.resnet50(pretrained=True)
 num_ftrs = model.fc.in_features
 model.fc = nn.Linear(num_ftrs, num_classes)
 
-model = nn.DataParallel(model, device_ids = [0])
+model = nn.DataParallel(model, device_ids = [0,1,2,3])
 model.to(device)
 
 print(model)
@@ -138,7 +144,7 @@ for epoch in range(1):
             running_loss = 0.0
         if i == 100:
             break;
-    test(model, device, test_dataloader)
+    #test(model, device, test_dataloader)
 
 print("Finished Training")
 avg_loss = running_loss / (i + 1)

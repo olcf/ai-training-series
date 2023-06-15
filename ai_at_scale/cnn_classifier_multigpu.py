@@ -8,23 +8,6 @@ import torch.nn.functional as F
 import warnings
 warnings.filterwarnings("ignore")
 
-class ANN(torch.nn.Module):
-
-    def __init__(self):
-        super(ANN, self).__init__()
-
-        self.linear1 = torch.nn.Linear(128, 200)
-        self.activation = torch.nn.ReLU()
-        self.linear2 = torch.nn.Linear(200, 231)
-        self.softmax = torch.nn.Softmax()
-
-    def forward(self, x):
-        x = self.linear1(x)
-        x = self.activation(x)
-        x = self.linear2(x)
-        x = self.softmax(x)
-        return x
-
 def test(model, device, test_loader):
     # Switch the model to evaluation mode (so we don't backpropagate or drop)
     model.eval()
@@ -55,29 +38,6 @@ def test(model, device, test_loader):
     # return average loss for the epoch
     return avg_loss
 
-class CNN2(nn.Module):
-    def __init__(self):
-        super(CNN, self).__init__()
-        self.conv1 = nn.Conv2d(3, 6, 5)
-        self.pool = nn.MaxPool2d(2, 2)
-        self.conv2 = nn.Conv2d(6, 16, 5)
-        #self.fc1 = nn.Linear(16 * 5 * 5, 120)
-        self.fc1 = nn.Linear(13456, 120)
-        self.fc2 = nn.Linear(120, 84)
-        self.fc3 = nn.Linear(84, 231)
-
-    def forward(self, x):
-        x = self.pool(F.relu(self.conv1(x)))
-        x = self.pool(F.relu(self.conv2(x)))
-        #print("x unflat:", x.shape)
-        x = torch.flatten(x, 1) # flatten all dimensions except batch
-        #print("x shape =", x.shape)
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = self.fc3(x)
-        return x
-
-
 class CNN(nn.Module):
     def __init__(self, num_classes=231):
         super(CNN, self).__init__()
@@ -98,8 +58,11 @@ class CNN(nn.Module):
 
 batch_size = 32
 
-train_data_dir = "/gpfs/alpine/world-shared/stf218/sajal/stemdl-data/train"
-test_data_dir = "/gpfs/alpine/world-shared/stf218/sajal/stemdl-data/test"
+#train_data_dir = "/gpfs/alpine/world-shared/stf218/sajal/stemdl-data/train"
+#test_data_dir = "/gpfs/alpine/world-shared/stf218/sajal/stemdl-data/test"
+
+train_data_dir = "/gpfs/wolf/world-shared/trn018/sajal/data/train"
+test_data_dir = "/gpfs/wolf/world-shared/trn018/sajal/data/test"
 
 train_dataset = NPZDataset(train_data_dir)
 test_dataset = NPZDataset(test_data_dir)
@@ -108,7 +71,7 @@ test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_siz
 
 device = "cuda"
 model = CNN()
-model = nn.DataParallel(model, device_ids = [0])
+model = nn.DataParallel(model, device_ids = [0,1,2,3,4,5])
 model.to(device)
 
 print(model)

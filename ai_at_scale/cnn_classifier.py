@@ -97,8 +97,11 @@ class CNN(nn.Module):
 
 batch_size = 4
 
-train_data_dir = "/gpfs/alpine/world-shared/stf218/sajal/stemdl-data/train"
-test_data_dir = "/gpfs/alpine/world-shared/stf218/sajal/stemdl-data/test"
+#train_data_dir = "/gpfs/alpine/world-shared/stf218/sajal/stemdl-data/train"
+#test_data_dir = "/gpfs/alpine/world-shared/stf218/sajal/stemdl-data/test"
+
+train_data_dir = "/gpfs/wolf/world-shared/trn018/sajal/data/train"
+test_data_dir = "/gpfs/wolf/world-shared/trn018/sajal/data/test"
 
 train_dataset = NPZDataset(train_data_dir)
 test_dataset = NPZDataset(test_data_dir)

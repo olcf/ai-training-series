@@ -1,0 +1,17 @@
+#BSUB -P trn018
+##BSUB -q debug
+#BSUB -W 0:30
+#BSUB -nnodes 1
+#BSUB -J dp-pretrained-1
+#BSUB -o logs/dp-pretrained-1-%J.o
+#BSUB -e logs/dp-pretrained-1-%J.e
+
+module load open-ce
+export TORCH_HOME=/gpfs/wolf/world-shared/trn018/ai-training-series/ai_at_scale/TH
+export http_proxy=http://proxy.ccs.ornl.gov:3128/
+export https_proxy=https://proxy.ccs.ornl.gov:3128/
+
+export OMP_NUM_THREADS=4
+export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5
+
+time jsrun -n 1 --tasks_per_rs 1 --cpu_per_rs 42 --gpu_per_rs 6 --rs_per_host 1 --latency_priority CPU-CPU --launch_distribution packed --bind packed:1 python resnet_classifier_multigpu.py

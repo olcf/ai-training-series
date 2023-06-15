@@ -1,0 +1,12 @@
+#BSUB -P trn018
+##BSUB -q debug
+#BSUB -W 0:30
+#BSUB -nnodes 1
+#BSUB -J cnn-cpu-pretrained-1
+#BSUB -o logs/cnn-cpu-pretrained-1-%J.o
+#BSUB -e logs/cnn-cpu-pretrained-1-%J.e
+
+module load open-ce
+export OMP_NUM_THREADS=4
+
+time jsrun -n 1 --tasks_per_rs 1 --cpu_per_rs 42 --rs_per_host 1 --latency_priority CPU-CPU --launch_distribution packed --bind packed:1 python cnn_classifier.py
