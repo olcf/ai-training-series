@@ -1,5 +1,9 @@
 # AI Training Series
 
+<p align="center" width="100%">
+    <img width="100%" src="./AI_Training_Banner.png">
+</p>
+
 The OLCF is proud to offer the AI Training Series.
 The AI Training Series is meant to highlight workflows, tools, software, and techniques used for machine learning and deep learning in the HPC realm.
 
