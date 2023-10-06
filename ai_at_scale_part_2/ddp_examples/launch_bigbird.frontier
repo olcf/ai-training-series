@@ -1,0 +1,96 @@
+#!/bin/bash
+
+#SBATCH -A STF218
+#SBATCH -J bigbird_frontier
+#SBATCH -o logs/bigbird_oscar_frontier-%j.o
+#SBATCH -e logs/bigbird_oscar_frontier-%j.e
+#SBATCH -t 00:20:00
+#SBATCH -p batch
+#SBATCH -N 2
+
+set +x
+#source /gpfs/alpine/world-shared/med106/gounley1/crusher2/conda520/etc/profile.d/conda.sh
+source /lustre/orion/proj-shared/stf218/sajal/miniconda3-frontier/etc/profile.d/conda.sh
+conda activate /lustre/orion/stf218/proj-shared/sajal/factory/TORCH2/env-py3.10.9-torch2.0
+#export PATH=/lustre/orion/stf218/proj-shared/sajal/pdsh/src/pdsh:$PATH
+#conda activate /gpfs/alpine/world-shared/stf218/sajal/crusher-env
+#export PATH=/gpfs/alpine/world-shared/med106/gounley1/crusher/pdsh/src/pdsh:$PATH
+
+module load PrgEnv-gnu
+module load gcc/11.2.0
+module load rocm/5.4.0
+export ROCM_HOME=/opt/rocm-5.4.0
+
+export TRANSFORMERS_OFFLINE=1
+export HF_DATASETS_OFFLINE=1
+
+# export settings
+export TORCH_EXTENSIONS_DIR=$PWD/deepspeed
+export HF_HOME=$PWD/hfdata
+export OMP_NUM_THREADS=1
+
+# setup hostfile
+HOSTS=.hosts-job$SLURM_JOB_ID
+HOSTFILE=hostfile.txt
+srun hostname > $HOSTS
+sed 's/$/ slots=8/' $HOSTS > $HOSTFILE
+
+# setup env file
+echo "PATH=$PATH" > .deepspeed_env
+echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> .deepspeed_env
+echo "CPATH=$CPATH" >> .deepspeed_env
+echo "TORCH_EXTENSIONS_DIR=$PWD/deepspeed" >> .deepspeed_env
+echo "HF_HOME=$PWD/hfdata" >> .deepspeed_env
+echo "ROCM_HOME=/opt/rocm-5.4.0" >> .deepspeed_env
+
+export LD_PRELOAD="/opt/cray/pe/gcc/11.2.0/snos/lib64/libstdc++.so.6.0.29"
+#/gpfs/alpine/world-shared/bip214/rocm_smi_lib/build/rocm_smi/librocm_smi64.so"
+
+scontrol show hostnames $SLURM_NODELIST > job.node.list
+input="./job.node.list"
+readarray -t arr <"$input"
+
+for row in "${arr[@]}";do
+  row_array=(${row})
+  first=${row_array[0]}
+  echo ${first}
+  cmd="ssh sajaldash@${first} rocm-smi"
+  echo $cmd
+  $cmd
+done
+
+ranks_per_node=8
+gpus_per_rank=$((8/$ranks_per_node))
+ranks_total=$(($ranks_per_node*$SLURM_JOB_NUM_NODES))
+
+mkdir logs
+mkdir logs/transformer
+
+MASTER_ADDR=$(scontrol show hostname ${SLURM_NODELIST} | head -n 1)
+echo "Master address =" $MASTER_ADDR
+export VAR=`ssh frontier02662 hostname -I`
+for var in $VAR; do
+	echo $var;
+done
+
+echo "Master address = " $var
+MASTER_ADDR=$var
+
+export PDSH_RCMD_TYPE=ssh
+
+deepspeed --hostfile=$HOSTFILE bigbird_oscar.py \
+   --output_dir ./outputs \
+   --deepspeed ds_config.json \
+   --do_train=True \
+   --per_device_train_batch_size 4 \
+   --gradient_accumulation_steps 1 \
+   --max_len 1024 \
+   --learning_rate 0.0002 \
+   --adam_beta2 0.98 \
+   --weight_decay 0.0000 \
+   --adam_epsilon 1e-8 \
+   --max_steps 1000 \
+   --warmup_steps 10
+#   --master_addr=$MASTER_ADDR
+#--no_ssh_check=True \
+
