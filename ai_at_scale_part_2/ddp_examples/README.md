@@ -6,7 +6,16 @@
 
 bash download_oscar.sh
 
-## Running Bigbird model on Oscar dataset
+## Download Models and Tokenizers
 
-sbatch launch_bigbird.crusher
+bash dl_models.sh
+
+## DDP Example: Running GPT-XL (1.5B) model on Oscar dataset
+
+sbatch launch_gpt_srun.frontier
+
+
+## Sharded Data Parallelism Example with DeepSpeed ZeRO
+
+sbatch launch_gptJ_srun.frontier 
 
