@@ -63,15 +63,12 @@ def setup_distributed_env(init_method=None, rank = 0, world_size=16):
     os.environ['MASTER_PORT'] = master_port
     os.environ['WORLD_SIZE'] = str(world_size)
     os.environ['RANK'] = str(world_rank)
-    os.environ['LOCAL_RANK'] = "0"#str(world_rank % 8)
-    print("initialization parameters:", init_method, backend, rank, world_size)
+    os.environ['LOCAL_RANK'] = "0"
     torch.distributed.init_process_group(backend,
-                                        #timeout=default_pg_timeout,
                                         init_method=init_method,
                                         rank=rank,
                                         world_size=world_size)
     using_mpi = torch.distributed.get_backend() == 'mpi'
-    print("using_mpi=", using_mpi)
 
 setup_distributed_env()
 
