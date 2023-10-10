@@ -25,11 +25,26 @@ mkdir logs
 sbatch launch_script.frontier
 ```
 
-For DDP Examples:
-* cd to ddp_examples
-* `launch_gpt_srun.frontier`: Trains a custom GPT Model on multiple nodes
+## Preparing Oscar dataset
 
-For Megatron Examples:
-* cd to megatron_examples/Megatron-DeepSpeed-ORNL
-* `launch_gpt_srun.frontier`: Trains a custom GPT Model of size 1.4B on multiple nodes
-* `launch_gpt175b_srun.frontier`: Trains a custom GPT Model of size 175B on multiple nodes
+bash download_oscar.sh
+
+## Download Models and Tokenizers
+
+bash dl_models.sh
+
+## DDP Example: Running GPT-XL (1.5B) model on Oscar dataset
+
+sbatch launch_gpt_srun.frontier
+
+
+## Sharded Data Parallelism Example with DeepSpeed ZeRO
+
+sbatch launch_gptJ_srun.frontier 
+
+
+## Megatron-DeepSPeed 3D parallelism to train a 22B model
+```
+cd Megatron-DeepSpeed-ORNL
+sbatch launch_gpt22b_srun.frontier
+```
