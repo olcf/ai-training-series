@@ -1,20 +1,21 @@
+import sys
 from transformers import AutoTokenizer, AutoModelForCausalLM, Trainer
 
-tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-neox-20b", cache_dir="tokenizers")
-tokenizer.save_pretrained("./gptneoxtokenizer")
-tokenizer =  AutoTokenizer.from_pretrained("./gptneoxtokenizer")
+def download_gpt(model_name):
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    tokenizer.save_pretrained(f"tokenizers/{model_name}")
+    model = AutoModelForCausalLM.from_pretrained(model_name)
+    model.save_pretrained(f"models/{model_name}")
 
-model = AutoModelForCausalLM.from_pretrained("EleutherAI/gpt-neox-20b", cache_dir="gptneox")
-model.save_pretrained("./gptneox22b")
+def load_gpt(model_name):
+    tokenizer = AutoTokenizer.from_pretrained(f"tokenizers/{model_name}")
+    model = AutoModelForCausalLM.from_pretrained(f"models/{model_name}")
+    
+def main(args):
+    if "gpt" in args[0]:
+        download_gpt(args[0])
+        #load_gpt(args[0])
 
-model = AutoModelForCausalLM.from_pretrained("./gptneox22b")
-print(model)
+if __name__ == "__main__":
+    main(sys.argv[1:])
 
-'''
-from transformers import AutoTokenizer, AutoModelForCausalLM
-
-tokenizer = AutoTokenizer.from_pretrained("gpt2-xl")
-tokenizer.save_pretrained("./gptxltokenizer")
-model = AutoModelForCausalLM.from_pretrained("gpt2-xl")
-model.save_pretrained("./gpt2xl")
-'''
