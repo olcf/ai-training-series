@@ -28,7 +28,7 @@ class ModelArguments:
         default="./pretrained"
     )
     max_len: int = field(
-        default=2048
+        default=128
     )
 
 class truncate(object):
@@ -52,15 +52,12 @@ print("Master address from main:", master_addr)
 import os
 from datetime import timedelta
 master_port = "29500"
-#default_pg_timeout = timedelta(minutes=1)
 
 def setup_distributed_env(init_method=None, rank = 0, world_size=16): 
     from mpi4py import MPI
     comm = MPI.COMM_WORLD
     world_size = comm.Get_size()
     world_rank = rank = comm.Get_rank()
-    #world_size = int(os.environ['OMPI_COMM_WORLD_SIZE'])
-    #world_rank = int(os.environ['OMPI_COMM_WORLD_RANK'])
     backend = None
     os.environ['MASTER_ADDR'] = master_addr
     os.environ['MASTER_PORT'] = master_port
@@ -84,25 +81,10 @@ model_args, training_args = parser.parse_args_into_dataclasses()
 print(model_args, training_args)
 trunc = truncate(model_args.max_len)
 
-'''
-max_data_rows = 14329267
-max_data_shards = 14330
-num_ranks = torch.distributed.get_world_size()
-max_row = num_ranks*int(np.floor(max_data_shards/num_ranks)) - 1
-data_len = int((max_row+1)*1000/num_ranks)
-print('total data len per gpu:',data_len)
-#dataset = wd.Dataset('/gpfs/alpine/world-shared/med106/g8o/webdata_full/part-{000000..%06d}.tar' % max_row,
-#                     length=data_len, shuffle=True).decode('torch').rename(input_ids='pth').map_dict(input_ids=trunc).shuffle(1000)
-'''
 dataset = load_dataset("oscar", "unshuffled_deduplicated_af", cache_dir="oscar")
 
 from transformers import AutoTokenizer, AutoModelForCausalLM, GPT2Tokenizer
-#tokenizer =  AutoTokenizer.from_pretrained("./gptneoxtokenizer")
-#tokenizer = BertTokenizer.from_pretrained('pubmed_bert-vocab.txt')
-#tokenizer.padding_side = "left"
-#tokenizer.pad_token = tokenizer.eos_token
-
-tokenizer = GPT2Tokenizer.from_pretrained("tokenizer/gpt2-tokenizer")
+tokenizer = AutoTokenizer.from_pretrained("tokenizers/gpt2-xl")
 tokenizer.padding_side = "left"
 tokenizer.pad_token = tokenizer.eos_token
 
@@ -112,11 +94,7 @@ data_collator = DataCollatorForLanguageModeling(
     tokenizer=tokenizer, mlm=False
 )
 
-#data_collator = DataCollatorWithPadding(
-#    tokenizer=tokenizer, padding="max_length", max_length=128
-#)
-
-context_length = 2048
+context_length = 128
 def tokenize(element):
     outputs = tokenizer(
         element["text"],
@@ -136,7 +114,7 @@ tokenized_dataset = train_dataset.map(
     tokenize, batched=True, remove_columns=dataset["train"].column_names
 )
 
-model = AutoModelForCausalLM.from_pretrained("gpt2-xl")
+model = AutoModelForCausalLM.from_pretrained("models/gpt2-xl")
 #model.half()
 
 trainer = Trainer(

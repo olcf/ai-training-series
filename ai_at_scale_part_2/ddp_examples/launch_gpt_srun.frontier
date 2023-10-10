@@ -69,14 +69,13 @@ export https_proxy=https://proxy.ccs.ornl.gov:3128
 export http_proxy=http://proxy.ccs.ornl.gov:3128
 export OMP_NUM_THREADS=2
 
-#srun -u -n1 -c2 --ntasks-per-node=1 --gpus-per-node=1 --gpu-bind=closest python gpt_oscar_srun.py \
 srun -u -n$ranks_total -c2 --ntasks-per-node=8 --gpus-per-node=8 --gpu-bind=closest python gpt_oscar_srun.py \
    --output_dir ./outputs \
    --deepspeed ds_config.json \
    --do_train=True \
    --per_device_train_batch_size 24 \
    --gradient_accumulation_steps 8 \
-   --max_len 2048 \
+   --max_len 128 \
    --learning_rate 0.0002 \
    --adam_beta2 0.98 \
    --weight_decay 0.0000 \
