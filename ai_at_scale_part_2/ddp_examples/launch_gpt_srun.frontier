@@ -1,12 +1,12 @@
 #!/bin/bash
 
-#SBATCH -A MED106
+#SBATCH -A STF218
 #SBATCH -J gpt_frontier
-#SBATCH -o logs/gpt_oscar_frontier_1N-%j.o
-#SBATCH -e logs/gpt_oscar_frontier_1N-%j.e
+#SBATCH -o logs/gpt_oscar_frontier_2N-%j.o
+#SBATCH -e logs/gpt_oscar_frontier_2N-%j.e
 #SBATCH -t 00:20:00
 #SBATCH -p batch
-#SBATCH -N 1
+#SBATCH -N 2
 
 set +x
 source /lustre/orion/world-shared/stf218/sajal/miniconda3/bin/activate
@@ -80,7 +80,7 @@ srun -u -n$ranks_total -c2 --ntasks-per-node=8 --gpus-per-node=8 --gpu-bind=clos
    --adam_beta2 0.98 \
    --weight_decay 0.0000 \
    --adam_epsilon 1e-8 \
-   --max_steps 100 \
+   --max_steps 20 \
    --warmup_steps 10 \
    --master_addr=$MASTER_ADDR
 
