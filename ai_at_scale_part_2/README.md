@@ -42,6 +42,11 @@ sbatch launch_gpt_srun.frontier
 
 sbatch launch_gptJ_srun.frontier 
 
+## Sharded Data Parallelism Example with PyTorch FSDP 
+
+sbatch launch_gptJ_fsdp.frontier 
+
+
 
 ## Megatron-DeepSPeed 3D parallelism to train a 22B model
 ```
