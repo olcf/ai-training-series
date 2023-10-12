@@ -9,7 +9,7 @@
 #SBATCH -N 4
 
 set +x
-source /lustre/orion/world-shared/stf218/sajal/miniconda3-frontier/bin/activate
+source /lustre/orion/world-shared/stf218/sajal/miniconda3/bin/activate
 conda activate /lustre/orion/world-shared/stf218/sajal/TORCH2/env-py310-rccl-megatron-new
 
 export LD_PRELOAD="/usr/lib64/libcrypto.so /usr/lib64/libssh.so.4 /usr/lib64/libssl.so.1.1"
@@ -78,7 +78,7 @@ export GPT_ARGS="--tensor-model-parallel-size 4 \
           --num-attention-heads 96 \
           --seq-length 2048 \
           --max-position-embeddings 2048 \
-  	  --micro-batch-size 4 \
+  	  --micro-batch-size 2 \
 	  --global-batch-size 20 \
 	  --train-samples 100000 \
        	  --lr-decay-samples 10000 \
