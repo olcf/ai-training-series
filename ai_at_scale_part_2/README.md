@@ -12,8 +12,8 @@ As ML/DL models evolve to keep up with the complexity of the real world, a super
 
 ## Part 2: AI for Science at Scale - Scaling Out
 
-* Recording: Will be posted after the tutorial
-* Slides: Will be posted after the training
+* Recording: https://vimeo.com/873844751
+* Slides: [AI for Science at Scale - Part 2](https://www.olcf.ornl.gov/wp-content/uploads/AIforSciencePart2.pdf)
 
 ### Workflow for running on Frontier:
 
