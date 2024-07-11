@@ -11,17 +11,17 @@ git switch FA2
 
 ### Training a Model with 22 Billion Parameters on 2 Nodes
 ```
-sbatch --reservation=ai launch_gpt22b_bf16.slurm
+sbatch -A your_project_ID --reservation=ai launch_gpt22b_bf16.slurm
 ```
 
 ### Training a Model with 175 Billion Parameters on 16 Nodes
 ```
-sbatch --reservation=ai launch_gpt175b_bf16.slurm
+sbatch -A your_project_ID --reservation=ai launch_gpt175b_bf16.slurm
 ```
 
 ### Training a Model with 1 Trillion Parameters on 128 Nodes
 ```
-sbatch --reservation=ai launch_gpt1T_bf16.slurm
+sbatch -A your_project_ID --reservation=ai launch_gpt1T_bf16.slurm
 ```
 
 ## Finding the Best Distributed Training Strategy using DeepHyper
