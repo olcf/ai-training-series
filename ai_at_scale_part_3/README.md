@@ -1,6 +1,7 @@
+# AI for Science at Scale -- Part III
 In Part 3 of this training series, we will demonstrate how to train LLMs with hundreds of billions of parameters from scratch. We will utilize two of our external repostitories/branches for this purpose.
 
-## Training Vergy Large LLMs
+## Training Very Large LLMs
 ### Get Megatron-DeepSpeed Codebase Ported to Frontier
 ```
 git clone https://github.com/sajal-vt/Megatron-DeepSpeed-ORNL.git
