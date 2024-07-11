@@ -5,6 +5,7 @@ In Part 3 of this training series, we will demonstrate how to train LLMs with hu
 ### Get Megatron-DeepSpeed Codebase Ported to Frontier
 ```
 git clone https://github.com/sajal-vt/Megatron-DeepSpeed-ORNL.git
+cd Megatron-DeepSpeed-ORNL/
 git fetch
 git switch FA2
 ```
@@ -42,6 +43,7 @@ sbatch -A your_project_ID --reservation=ai launch_gpt1T_bf16.slurm
 ### Get frontier-sd Branch
 ```
 git clone https://github.com/sajal-vt/Megatron-DeepSpeed-ORNL.git
+cd Megatron-DeepSpeed-ORNL/
 git fetch
 git switch frontier-sd
 ```
