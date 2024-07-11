@@ -15,12 +15,12 @@ git switch FA2
 You must modify the batch scripts due to a permissions issue. You have to replace these 2 lines (top of batch script):
 ```
 source /lustre/orion/world-shared/stf218/sajal/miniconda3-frontier/bin/activate
-conda activate /lustre/orion/stf006/world-shared/irl1/flash2
+conda activate ...
 ```
 with:
 ```
 module load miniforge3
-source activate /lustre/orion/stf006/world-shared/irl1/flash2
+source activate ...
 ```
 
 
