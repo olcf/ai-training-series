@@ -48,7 +48,7 @@ git switch frontier-sd
 
 ### Launch HyperParameter Search using DeepHyper
 ```
-sbatch --reservation=ai launch_dh.frontier
+sbatch -A your_project_ID --reservation=ai launch_dh.frontier
 ```
 
 
