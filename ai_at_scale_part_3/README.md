@@ -1,4 +1,8 @@
 # AI for Science at Scale -- Part III
+
+* Recording: https://vimeo.com/983121540
+* Slides: https://www.olcf.ornl.gov/wp-content/uploads/AI4S-Tutorial-Part-III.pdf
+
 In Part 3 of this training series, we will demonstrate how to train LLMs with hundreds of billions of parameters from scratch. We will utilize two of our external repostitories/branches for this purpose.
 
 ## Training Very Large LLMs
