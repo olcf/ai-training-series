@@ -1,3 +1,5 @@
+# SmartSim Workshop 2024
+
 Advancements in AI and AI accelerators are opening up a new avenue of research which combines data-driven techniques and scientific simulations. These hybrid applications often are more easily described by a loosely-coupled set of components (of which the simulation may be one) instead of a pipeline-like workflow common in traditional scientific computations. The ability to describe and execute these workflows along with the need to share data among the components can be a significant barrier to entry for domain scientists. HPE’s SmartSim is an open-source software library that seeks to address these challenges by providing an in-memory, distributed feature store for data storage and exchange, lightweight communication clients embeddable in C, C++, Fortran, and Python, and a Python library allowing users to compose complex workflows.
 
 This workshop will showcase recent collaborations using SmartSim that are representative of emerging AI/HPC applications:
@@ -10,6 +12,6 @@ In addition to showcasing the capabilities, this presentation will also highligh
 
 Specific examples of how to use SmartSim on Frontier (OLCF) and Perlmutter (NERSC) will be provided. 
 
-Tutorial link: https://github.com/CrayLabs/smartsim_workshops/tree/nersc_olcf_2024
-Recording: https://vimeo.com/1013517492
-Slides: https://www.olcf.ornl.gov/wp-content/uploads/SmartSim_NERSC_OLCF_Workshop2024.pdf
+* Tutorial link: https://github.com/CrayLabs/smartsim_workshops/tree/nersc_olcf_2024
+* Recording: https://vimeo.com/1013517492
+* Slides: https://www.olcf.ornl.gov/wp-content/uploads/SmartSim_NERSC_OLCF_Workshop2024.pdf
