@@ -1,5 +1,13 @@
 # agentic-ai-training
 
+You can find this repo at https://github.com/olcf/ai-training-series
+
+The first step is to clone it and navigate to the training module:
+
+```bash
+git clone https://github.com/olcf/ai-training-series.git
+cd agentic-ai-training
+```
 
 ## Setting up your environment
 
