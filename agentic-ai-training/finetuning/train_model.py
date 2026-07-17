@@ -16,16 +16,12 @@ from transformers import (
     __version__ as transformers_version,
 )
 
-try:
-    from config import PROJECT_ROOT
-except ModuleNotFoundError:
-    # module not found because config.py is not a sibling, and certain versions of Python do not look from call path
-    PROJECT_ROOT = PROJECT_ROOT = Path(__file__).resolve().parent.parent
+from config import PROJECT_ROOT
 
 
 DEFAULT_TRAIN_FILE = PROJECT_ROOT / "finetuning" / "generated_train.jsonl"
 DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "finetuning" / "model_output"
-DEFAULT_MODEL_NAME = "sshleifer/tiny-gpt2"
+DEFAULT_MODEL_NAME = "google/gemma-4-E2B-it"
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -54,7 +50,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Number of training epochs",
     )
     parser.add_argument(
-        "--batch-size",
+        "--batch-size-ft",
         type=int,
         default=2,
         help="Per-device training batch size",
@@ -136,31 +132,39 @@ class ChatFineTuneDataset(Dataset):
 
 
 def run(args: argparse.Namespace) -> None:
-    train_file = Path(args.train_file)
-    output_dir = Path(args.output_dir)
+    train_file = DEFAULT_TRAIN_FILE
+    if args.train_file:
+        train_file = Path(args.train_file)
+
+    output_dir = DEFAULT_OUTPUT_DIR
+    if args.output_dir:
+        output_dir = Path(args.output_dir)
+
+    model_name = DEFAULT_MODEL_NAME
+    if args.model_name:
+        model_name = args.model_name
 
     if not train_file.exists():
         raise FileNotFoundError(f"Training file not found: {train_file}")
 
     print("[ft-train] Starting fine-tuning run")
     print(f"[ft-train] Train file: {train_file}")
-    print(f"[ft-train] Base model: {args.model_name}")
+    print(f"[ft-train] Base model: {model_name}")
     print(f"[ft-train] Output dir: {output_dir}")
 
-    tokenizer = AutoTokenizer.from_pretrained(args.model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    model = AutoModelForCausalLM.from_pretrained(args.model_name)
+    model = AutoModelForCausalLM.from_pretrained(model_name)
     dataset = ChatFineTuneDataset(train_file, tokenizer, args.max_length)
     collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
-    # diff in newer API
     if transformers_version.startswith('5'):
         training_args = TrainingArguments(
             output_dir=str(output_dir),
             num_train_epochs=args.epochs,
-            per_device_train_batch_size=args.batch_size,
+            per_device_train_batch_size=args.batch_size_ft,
             learning_rate=args.learning_rate,
             save_strategy="epoch",
             logging_steps=1,
@@ -173,7 +177,7 @@ def run(args: argparse.Namespace) -> None:
             output_dir=str(output_dir),
             overwrite_output_dir=True,
             num_train_epochs=args.epochs,
-            per_device_train_batch_size=args.batch_size,
+            per_device_train_batch_size=args.batch_size_ft,
             learning_rate=args.learning_rate,
             save_strategy="epoch",
             logging_steps=1,

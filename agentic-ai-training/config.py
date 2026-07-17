@@ -22,9 +22,19 @@ DEFAULT_CHROMA_COLLECTION = "document_chunks"
 DEFAULT_CHROMA_BATCH_SIZE = 100
 
 # Embedding defaults.
-DEFAULT_EMBEDDING_MODEL = "nomic-ai/nomic-embed-text-v2-moe"
+DEFAULT_EMBEDDING_MODEL = "nomic-embed-text-v2-moe"
 
 # SambaNova settings.
 SAMBANOVA_BASE_URL = "https://api.sambanova.ai/v1"
 SAMBANOVA_MODEL_NAME = "gpt-oss-120b"
 SAMBANOVA_API_KEY = os.getenv("SAMBANOVA_API_KEY", "")
+
+# Odo settings
+ODO_BASE_PATH = Path("/gpfs/wolf2/olcf/stf007/world-shared/agentic-ai-training")
+ODO_EMBED_PATH = ODO_BASE_PATH / "nomic-embed-text-v2-moe"
+ODO_CONTAINER_PATH = ODO_BASE_PATH / "vllm_rocm.sif"
+
+# Frontier settings
+FRONTIER_BASE_PATH = Path("/lustre/orion/stf007/world-shared/agentic-ai-training")
+FRONTIER_EMBED_PATH = FRONTIER_BASE_PATH / "nomic-embed-text-v2-moe"
+FRONTIER_CONTAINER_PATH = FRONTIER_BASE_PATH / "vllm_rocm.sif"

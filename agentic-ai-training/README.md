@@ -1,66 +1,165 @@
 # agentic-ai-training
 
-You can find this repo at https://github.com/olcf/ai-training-series
-
-The first step is to clone it and navigate to the training module:
-
-```bash
-git clone https://github.com/olcf/ai-training-series.git
-cd agentic-ai-training
-```
-
-## Setting up your environment
+## Prerequisites
 
 For this training you will need the following:
-* A Python environment that can install from the included `requirements.txt`
-* A `sqlite3` installation
+* Access to a computer with an internet connection.
+* (Optional) An OLCF account.
 
-### Python environment
+OLCF users are provided the following, learners outside of OLCF will need to follow additional instructions in each section:
+* A Python environment with PyTorch, capable of installing the additional requirements in `requirements.txt`.
+* An embedding model for embedding document text.
+* A large language model
+
+## Log in to Frontier/Odo
+
+OLCF users can follow this training from Frontier/Odo.
+
+To log into Frontier:
+```bash
+ssh <username>@frontier.olcf.ornl.gov
+```
+
+To log into Odo:
+```bash
+ssh <username>@odo.olcf.ornl.gov
+```
+
+## Shell environment
+
+This section is for OLCF users. If you are not running on OLCF systems, you can skip to the Python environment section.
+
+Load requisite modules and environment variables:
+```bash
+module load PrgEnv-gnu/8.7.0
+module load cpe/26.03
+module load miniforge3
+module load rocm/7.1.1
+module load craype-accel-amd-gfx90a
+
+# Because using a non-default CPE
+export LD_LIBRARY_PATH=$CRAY_LD_LIBRARY_PATH:$LD_LIBRARY_PATH
+```
+
+## Python environment
+
+All learners will need to follow this section to create or use a Python environment.
 
 At OLCF, we use `miniforge3` on our production machines, which is available on GitHub here: https://github.com/conda-forge/miniforge
 
-You can find install instructions here: https://github.com/conda-forge/miniforge#install
+You can use `minifroge3` on both Frontier and Odo by using the provided module, which is what we loaded in the previous step.
 
-The basic instructions for Mac/Linux/WSL are:
-1. Run `curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"`
-2. Run `bash Miniforge3-$(uname)-$(uname -m).sh`
+<details>
+<summary>Instructions to set up your own environment</summary>
 
-Once installed, you may need to open a new terminal window to activate `miniforge3`.
-You can set up the environment easily as follows:
+Adapted from the [PyTorch on Frontier User Docs](https://docs.olcf.ornl.gov/software/analytics/pytorch_frontier.html)
 
-`conda create -p ./agentic-ai-training-env python=3.14`
+Create the base environment:
+```bash
+conda create -p ./agentic-ai-training-env python=3.14 -y
+conda activate ./agentic-ai-trainig-env
+```
 
-You should press `y` when asked if you would like to install Python and necessary packages.
+Install PyTorch for AMD GPUs, which are what Frontier and Odo use:
+```bash
+# if you are not using AMD GPUs, or are using another version of ROCm, you will need to choose another --index-url
+# If you are using NVIDIA GPUs, you should be able to skip this step
+pip install torch==2.12.0 --index-url https://download.pytorch.org/whl/rocm7.1
+```
 
-Next, activate the environment:
+Install remaining requirements:
+```bash
+pip install -r requirements-python314.txt
+```
 
-`conda activate ./agentic-ai-training-env`
+</details>
 
-Finally, you can install the packages needed for the module with:
+The environment is already provided for OLCF users. You can load it with the following commands:
+Frontier:
+```bash
+conda activate /lustre/orion/stf007/world-shared/agentic-ai-training/agentic-ai-training-env
+```
 
-`pip install -r requirements-python314.txt`
+Odo:
+```bash
+conda activate /gpfs/wolf2/olcf/stf007/world-shared/agentic-ai-training/agentic-ai-training-env
+```
 
-### `sqlite3` installation
+## Setting up the ChromaDB
 
-On WSL, you should be able to use your package manager to install `sqlite3`.
-If you have a default configuration running Ubuntu, you can run the following:
+We can now initialize the ChromaDB we will be using for the RAG portion of this training.
 
-`sudo apt install sqlite3`
+With the included `config.py`, `create_contextual_chunks.py` and your new Python environment, you should be able to run the following:
 
-On MacOS, you can install with Homebrew:
+```bash
+python create_contextual_chunks.py
+```
 
-`brew install sqlite3`
+This script should generate a `chunks.jsonl` file which you can parse through to see the results of chunking the input
+data.
+
+## Generating Embeddings
+
+<details>
+<summary>Instructions to pull `nomic-embed-text-v2-moe`</summary>
+
+Follow these instructions to gain access to `nomic-embed-text-v2-moe`.
+
+You will need to set up git-lfs on Frontier/Odo.
+```bash
+module load git-lfs
+git-lfs install
+git clone https://huggingface.co/nomic-ai/nomic-embed-text-v2-moe
+```
+
+</details>
+
+OLCF users can use pre-fetched models on Frontier and Odo.
+
+The script defaults to using the `nomic-embed-text-v2-moe` model for embeddings, and the paths are programmed
+into the script.
+
+If you are running on Odo, your run command needs the `--odo` flag.
+
+Frontier:
+```bash
+python generate_embeddings.py
+```
+
+Odo:
+```bash
+python generate_embeddings.py --odo
+```
+
+<details>
+<summary>Specifying which model to run or run outside OLCF</summary>
+
+Outside OLCF systems, you can choose to run with other models.
+You can follow the above instructions for pulling `nomic-embed-text-v2-moe` to your local filesystem, and point to it:
+
+```bash
+python generate_embeddings.py --embedding-model local/path/to/nomic-embed-text-v2-moe
+```
+
+If you are following along on your own computer, you can run the following to automatically fetch the embedding model. 
+
+```bash
+python generate_embeddings.py --embedding-model nomic-ai/nomic-embed-text-v2-moe
+```
+</details>
+
+`python create_contextual_chunks.py`
 
 
-## Tutorial Flow
+## Current Tutorial Flow
 
-The project supports a single tutorial entrypoint through `main.py`, which can run one step at a time or the full RAG pipeline.
+The project now supports a single tutorial entrypoint through `main.py`, which can run one step at a time or the full RAG pipeline.
 
-Before running the `query`/`chat` step, export your SambaNova API key:
+Before running the query/chat step, export your SambaNova API key:
 
 `export SAMBANOVA_API_KEY=your_key_here`
 
-The tutorial flow is:
+The current tutorial flow is:
 
 1. Chunk the source documents into retrieval-ready text chunks
 2. Embed those chunks and store them in ChromaDB
@@ -83,8 +182,6 @@ To run the embedding step:
 To run the retrieval/chat step with a question:
 
 `python3 main.py --step query --query "Summarize the papers"`
-
-You will be dropped into a chat prompt, which you can leave by typing `exit` and hitting enter.
 
 To run the full pipeline end to end:
 

@@ -11,12 +11,12 @@ from config import (
     SAMBANOVA_API_KEY,
     SAMBANOVA_BASE_URL,
     SAMBANOVA_MODEL_NAME,
+    ODO_BASE_PATH,
+    FRONTIER_BASE_PATH,
 )
 from rag.chat import (
     SYSTEM_PROMPT,
-    build_grounded_user_message,
-    create_sambanova_client,
-    request_grounded_answer,
+    Chat,
 )
 from rag.embeddings import build_model_collection_name, load_embedder
 from rag.logging_utils import log_stage, log_substep, set_verbose
@@ -77,6 +77,28 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Print function-level tracing with a one-line summary for each step",
     )
+    parser.add_argument(
+        "--odo",
+        default=False,
+        action='store_true',
+        help="Pass if running on Odo, sets default embedding model location."
+    )
+    parser.add_argument(
+        "--frontier",
+        default=False,
+        action='store_true',
+        help="Pass if running on Frontier, sets default embedding model location."
+    )
+    parser.add_argument(
+        "--openai",
+        default=False,
+        action='store_true',
+        help="Pass if using OpenAI Client. Chooses locally running OpenAI server over SambaNova."
+    )
+    parser.add_argument(
+        "--openai-host",
+        help="Name or IP of OpenAI server.",
+    )
     return parser
 
 
@@ -84,6 +106,16 @@ def run(args: argparse.Namespace) -> None:
     set_verbose(getattr(args, "verbose", False))
     top_k = max(1, args.top_k)
     first_query = args.query_flag or args.query
+
+    if args.openai and not args.openai_host:
+        raise Error("OpenAI server must be specified with --openai-host")
+
+    agent_model = SAMBANOVA_MODEL_NAME
+    if args.openai:
+        if args.odo:
+            agent_model = f"{ODO_BASE_PATH}/{SAMBANOVA_MODEL_NAME}"
+        if args.frontier:
+            agent_model = f"{FRONTIER_BASE_PATH}/{SAMBANOVA_MODEL_NAME}"
 
     collection_name = args.chroma_collection or build_model_collection_name(
         DEFAULT_CHROMA_COLLECTION, args.embedding_model
@@ -93,7 +125,7 @@ def run(args: argparse.Namespace) -> None:
     log_substep(
         "3/3",
         "Models used in this step: "
-        f"embedding={args.embedding_model}, chat={SAMBANOVA_MODEL_NAME}",
+        f"embedding={args.embedding_model}, chat={agent_model}",
     )
     log_substep("3/3", f"Requested collection: {collection_name}")
 
@@ -105,15 +137,18 @@ def run(args: argparse.Namespace) -> None:
     )
     active_collection_name = getattr(collection, "name", collection_name)
     log_substep("3/3", f"Active collection: {active_collection_name}")
-    client = create_sambanova_client(
+
+    chat = Chat(is_openai=args.openai)
+    client = chat.create_client(
         api_key=SAMBANOVA_API_KEY,
-        base_url=SAMBANOVA_BASE_URL,
+        base_url=f"http://{args.openai_host}:4000/v1" if args.openai else SAMBANOVA_BASE_URL,
     )
+
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
 
     print("Chroma chat is ready. Type 'exit' or 'quit' to leave.")
     print(f"Collection: {active_collection_name}")
-    print(f"Agent model: {SAMBANOVA_MODEL_NAME}")
+    print(f"Agent model: {agent_model}")
 
     pending_query = first_query
 
@@ -145,16 +180,16 @@ def run(args: argparse.Namespace) -> None:
         messages.append(
             {
                 "role": "user",
-                "content": build_grounded_user_message(
+                "content": chat.build_grounded_user_message(
                     query_text, source_guide, context_block
                 ),
             }
         )
 
-        log_substep("3/3", "Requesting grounded answer from SambaNova")
-        assistant_reply = request_grounded_answer(
+        log_substep("3/3", f"Requesting grounded answer from {'OpenAI' if args.openai else 'SambaNova'}")
+        assistant_reply = chat.request_grounded_answer(  # TODO this might work
             client=client,
-            model_name=SAMBANOVA_MODEL_NAME,
+            model_name=agent_model,
             messages=messages,
         )
         messages.append({"role": "assistant", "content": assistant_reply})

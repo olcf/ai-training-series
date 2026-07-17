@@ -17,8 +17,10 @@ from config import (
     SAMBANOVA_API_KEY,
     SAMBANOVA_BASE_URL,
     SAMBANOVA_MODEL_NAME,
+    FRONTIER_BASE_PATH,
+    ODO_BASE_PATH,
 )
-from rag.chat import create_sambanova_client, request_grounded_answer
+from rag.chat import Chat
 from rag.embeddings import build_model_collection_name, load_embedder
 from rag.logging_utils import log_stage, log_substep, set_verbose
 from rag.retrieval import build_context_block, build_source_guide, retrieve_context
@@ -89,6 +91,28 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Print function-level tracing with a one-line summary for each step",
     )
+    parser.add_argument(
+        "--odo",
+        default=False,
+        action='store_true',
+        help="Pass if running on Odo, sets default embedding model location."
+    )
+    parser.add_argument(
+        "--frontier",
+        default=False,
+        action='store_true',
+        help="Pass if running on Frontier, sets default embedding model location."
+    )
+    parser.add_argument(
+        "--openai",
+        default=False,
+        action='store_true',
+        help="Pass if using OpenAI Client. Chooses locally running OpenAI server over SambaNova."
+    )
+    parser.add_argument(
+        "--openai-host",
+        help="Name or IP of OpenAI server.",
+    )
     return parser
 
 
@@ -145,6 +169,8 @@ def generate_example_for_seed(
     collection,
     client,
     top_k: int,
+    chat_client,
+    model_name,
 ) -> dict[str, object]:
     retrieval_query = seed.get("retrieval_query") or seed.get("topic") or ""
     docs, metas, dists = retrieve_context(retrieval_query, embedder, collection, top_k)
@@ -162,9 +188,9 @@ def generate_example_for_seed(
             "content": build_generation_prompt(seed, source_guide, context_block),
         },
     ]
-    model_reply = request_grounded_answer(
+    model_reply = chat_client.request_grounded_answer(
         client=client,
-        model_name=SAMBANOVA_MODEL_NAME,
+        model_name=model_name,
         messages=messages,
     )
     example = extract_json_object(model_reply)
@@ -197,9 +223,22 @@ def run(args: argparse.Namespace) -> None:
     if not seed_file.exists():
         raise FileNotFoundError(f"Seed file not found: {seed_file}")
 
+    if args.odo:
+        args.embedding_model = "/gpfs/wolf2/olcf/stf007/world-shared/agentic-ai-training/nomic-embed-text-v2-moe"
+
+    if args.frontier:
+        args.embedding_model = "/lustre/orion/stf007/world-shared/agentic-ai-training/nomic-embed-text-v2-moe"
+
     collection_name = args.chroma_collection or build_model_collection_name(
         DEFAULT_CHROMA_COLLECTION, args.embedding_model
     )
+
+    agent_model = SAMBANOVA_MODEL_NAME
+    if args.openai:
+        if args.odo:
+            agent_model = f"{ODO_BASE_PATH}/{SAMBANOVA_MODEL_NAME}"
+        if args.frontier:
+            agent_model = f"{FRONTIER_BASE_PATH}/{SAMBANOVA_MODEL_NAME}"
 
     log_stage("ft", "Starting RAG-assisted data creation")
     log_substep("ft", f"Seed file: {seed_file}")
@@ -214,9 +253,11 @@ def run(args: argparse.Namespace) -> None:
     collection = get_existing_collection(
         Path(args.chroma_path), collection_name, args.embedding_model
     )
-    client = create_sambanova_client(
+
+    chat = Chat(is_openai=args.openai)
+    client = chat.create_client(
         api_key=SAMBANOVA_API_KEY,
-        base_url=SAMBANOVA_BASE_URL,
+        base_url=f"http://{args.openai_host}:4000/v1" if args.openai else SAMBANOVA_BASE_URL,
     )
 
     seeds = list(iter_seed_records(seed_file))
@@ -240,6 +281,8 @@ def run(args: argparse.Namespace) -> None:
                     collection=collection,
                     client=client,
                     top_k=max(1, args.top_k),
+                    chat_client=chat,
+                    model_name=agent_model,
                 )
                 handle.write(json.dumps(example, ensure_ascii=False) + "\n")
                 generated_count += 1

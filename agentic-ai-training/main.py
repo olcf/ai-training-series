@@ -19,7 +19,8 @@ from rag.create_contextual_chunks import run as run_chunking
 from rag.generate_embeddings import run as run_embedding
 from rag.query_chroma import run as run_query
 from rag.logging_utils import log_stage, log_function, set_verbose
-
+from finetuning.data_creation.generate_examples import run as run_generate_examples
+from finetuning.train_model import run as run_train_model
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -30,7 +31,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--step",
-        choices=("chunk", "embed", "query", "all"),
+        choices=("chunk", "embed", "query", "all", "ft-generate", "ft-train"),
         required=True,
         help="Which tutorial step to run",
     )
@@ -137,12 +138,58 @@ def build_parser() -> argparse.ArgumentParser:
         action='store_true',
         help="Pass if running on Odo, sets default embedding model location."
     )
-
     parser.add_argument(
         "--frontier",
         default=False,
         action='store_true',
         help="Pass if running on Frontier, sets default embedding model location."
+    )
+    parser.add_argument(
+        "--openai",
+        default=False,
+        action='store_true',
+        help="Pass if using OpenAI Client. Chooses locally running OpenAI server over SambaNova."
+    )
+    parser.add_argument(
+        "--openai-host",
+        help="Name or IP of OpenAI server.",
+    )
+    # train model args
+    parser.add_argument(
+        "--train-file",
+        help="Input JSONL file containing chat-format training examples",
+    )
+    parser.add_argument(
+        "--output-dir",
+        help="Directory where the fine-tuned model will be saved",
+    )
+    parser.add_argument(
+        "--model-name",
+        help="Base Hugging Face causal LM to fine-tune",
+    )
+    parser.add_argument(
+        "--epochs",
+        type=int,
+        default=3,
+        help="Number of training epochs",
+    )
+    parser.add_argument(
+        "--batch-size-ft",
+        type=int,
+        default=2,
+        help="Per-device training batch size",
+    )
+    parser.add_argument(
+        "--max-length",
+        type=int,
+        default=512,
+        help="Maximum tokenized sequence length",
+    )
+    parser.add_argument(
+        "--learning-rate",
+        type=float,
+        default=5e-5,
+        help="Learning rate for optimization",
     )
     return parser
 
@@ -150,6 +197,12 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     args = build_parser().parse_args()
     set_verbose(args.verbose)
+
+    if args.odo:
+        args.embedding_model = "/gpfs/wolf2/olcf/stf007/world-shared/agentic-ai-training/nomic-embed-text-v2-moe"
+
+    if args.frontier:
+        args.embedding_model = "/lustre/orion/stf007/world-shared/agentic-ai-training/nomic-embed-text-v2-moe"
 
     if args.step == "chunk":
         log_function(
@@ -175,6 +228,17 @@ def main() -> None:
         )
         run_query(args)
         return
+
+    if args.step == "ft-generate":
+        log_function("generate_examples","Runs example generation stage.")
+        run_generate_examples(args)
+        return
+
+    if args.step == "ft-train":
+        log_function("train_fine_tune","Runs example training stage.")
+        run_train_model(args)
+        return
+
 
     log_stage("main", "Running full tutorial pipeline: chunk -> embed -> query")
     log_function(
