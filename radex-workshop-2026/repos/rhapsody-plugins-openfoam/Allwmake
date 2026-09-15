@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+
+cd "${0%/*}" || exit 1
+
+# Defaults only; anything already set in the environment wins
+: "${RADEX_DIR:=$HOME/dev/RaDex/install}"
+: "${SMARTREDIS_DIR:=$HOME/dev/hpe/SmartRedis/install}"
+
+# Only consult Dragon if the caller did not supply the flags. pyenv installs a
+# dragon-config shim that exists but fails, so test the output not the path.
+if [ -z "$DRAGON_INCLUDES" ] || [ -z "$DRAGON_LIBS" ]
+then
+    dragon_includes=$(dragon-config -o 2>/dev/null)
+    dragon_libs=$(dragon-config -l 2>/dev/null)
+
+    if [ -z "$dragon_includes" ] || [ -z "$dragon_libs" ]
+    then
+        echo "Allwmake: could not get build flags from dragon-config." >&2
+        echo "Activate the Dragon environment, or set the flags directly:" >&2
+        echo '  export DRAGON_INCLUDES="-I/path/to/dragon/include"' >&2
+        echo '  export DRAGON_LIBS="-L/path/to/dragon/lib -ldragon"' >&2
+        exit 1
+    fi
+
+    : "${DRAGON_INCLUDES:=$dragon_includes}"
+    : "${DRAGON_LIBS:=$dragon_libs}"
+fi
+
+find_lib_dir() {
+    local install_dir="$1"
+    local lib="$2"
+
+    local dir=$(
+        find "$install_dir" -type f \( \
+                -name "${lib}.so" -o \
+                -name "${lib}.dylib" -o \
+                -name "${lib}.a" \
+             \) -exec dirname {} \; -quit
+    )
+
+    if [[ -z "$dir" ]]; then
+        printf 'Error: could not find %s under %s\n' "$lib" "$root" >&2
+        return 1
+    fi
+
+    echo "$dir"
+}
+
+RADEX_INCLUDE_DIR="${RADEX_DIR}/include"
+RADEX_LIB_DIR="$(find_lib_dir ${RADEX_DIR} libradex)"
+SMARTREDIS_INCLUDE_DIR="${SMARTREDIS_DIR}/include"
+SMARTREDIS_LIB_DIR="$(find_lib_dir ${SMARTREDIS_DIR} libsmartredis)"
+
+# Note below can be replaced with DRAGON_LIB_DIR="$(dragon-config -b)/lib" in the
+# next Dragon release
+if [ -z "$DRAGON_LIB_DIR" ]
+then
+    DRAGON_LIB_DIR=$(echo $DRAGON_LIBS | sed -E 's/.*-L[[:space:]]*([^[:space:]]+).*/\1/')
+fi
+
+export DRAGON_INCLUDES \
+       DRAGON_LIBS \
+       DRAGON_LIB_DIR \
+       RADEX_INCLUDE_DIR \
+       RADEX_LIB_DIR \
+       SMARTREDIS_INCLUDE_DIR \
+       SMARTREDIS_LIB_DIR
+
+# Create the $FOAM_USER_LIBBIN if not existing.
+# - This happens with a fresh OpenFOAM installation.
+# - openfoam-smartsim libraries are placed into $FOAM_USER_LIBBIN
+if [ ! -d "$FOAM_USER_LIBBIN" ];
+then
+    mkdir -p $FOAM_USER_LIBBIN
+fi
+
+## Compile OpenFOAM libs
+wmake libso src/openFOAM/radexIO
+wmake libso src/openFOAM/functionObjects/radexBase
+wmake libso src/openFOAM/functionObjects/radexWrite
+wmake libso src/openFOAM/functionObjects/radexRead
+
+## Install the Python package
+if ! python3 -m pip --version > /dev/null 2>&1
+then
+    echo "Allwmake: python3 -m pip is unavailable; skipping the Python package." >&2
+    echo "Activate your Python environment and run 'pip install .' by hand." >&2
+    exit 1
+fi
+
+# An old system pip silently produces a package named UNKNOWN from this
+# pyproject, so require an activated environment rather than installing there
+if [ -z "$VIRTUAL_ENV" ] && [ -z "$CONDA_PREFIX" ]
+then
+    echo "Allwmake: refusing to install into the system Python." >&2
+    echo "Activate a virtual environment first." >&2
+    exit 1
+fi
+
+python3 -m pip install .

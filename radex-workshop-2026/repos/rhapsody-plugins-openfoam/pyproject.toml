@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rhapsody-plugins.openfoam"
+version = "0.1.0"
+description = "Python utilities for the radical-openfoam project"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+	"dragonhpc",
+	"rhapsody-py",
+]
+
+[project.optional-dependencies]
+examples = [
+    "scikit-optimize",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src/python"}
+
+[tool.setuptools.packages.find]
+where = ["src/python"]
+include = ["rhapsody_plugins*"]

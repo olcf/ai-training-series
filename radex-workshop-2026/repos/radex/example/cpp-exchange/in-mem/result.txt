@@ -1,0 +1,11 @@
+=============
+Hello World!!
+=============
+Some Int:           123
+Some Double:        1.23
+
+Some Int Tensor:    [ 0, 1, 2, 3, ]
+        \- Dims:    [ 2, 2, ]
+Some Double Tensor: [ 0.100000, 2.300000, 4.500000, 6.700000, ]
+           \- Dims: [ 4, ]
+=============

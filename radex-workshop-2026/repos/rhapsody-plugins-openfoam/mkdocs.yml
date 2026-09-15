@@ -1,0 +1,158 @@
+site_name: RHAPSODY OpenFOAM Plugins
+site_url: https://CrayLabs.github.io/rhapsody-plugins-openfoam
+site_author: RADICAL Cybertools
+site_description: RHAPSODY plugins for driving OpenFOAM workflows with radex-based data exchange.
+
+repo_name: CrayLabs/rhapsody-plugins-openfoam
+repo_url: https://github.com/CrayLabs/rhapsody-plugins-openfoam
+
+copyright: Copyright &copy; 2024—Present by <a target="_blank" href="https://radical.rutgers.edu">RADICAL Lab</a>
+
+theme:
+  name: material
+  features:
+    - content.code.annotate
+    - content.code.copy
+    - content.code.select
+    - navigation.path
+    - navigation.sections
+    - navigation.tabs
+    - navigation.top
+    - navigation.tracking
+    - navigation.indexes
+    - header.autohide
+    - search.highlight
+    - search.share
+    - search.suggest
+    - toc.follow
+  font:
+    text: Open Sans
+    code: Roboto Mono
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      primary: blue grey
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      primary: blue grey
+      accent: teal
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+
+watch:
+  - mkdocs.yml
+  - README.md
+  - docs/
+  - src/python/rhapsody_plugins
+  - src/openFOAM
+  - examples/
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/CrayLabs/rhapsody-plugins-openfoam
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: CrayLabs
+      repo: rhapsody-plugins-openfoam
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.snippets:
+      base_path: ["."]
+      check_paths: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+nav:
+  - Home:
+      - Overview: index.md
+      - Get Started: getting-started/index.md
+      - Installation: getting-started/installation.md
+      - Building the OpenFOAM Function Objects: getting-started/building-the-function-object.md
+      - Quick Start: getting-started/quick-start.md
+      - Issues (GitHub): https://github.com/CrayLabs/rhapsody-plugins-openfoam/issues
+  - Examples:
+      - Overview: examples/index.md
+      - Hello World: examples/hello-world.md
+      - Basic OpenFOAM Case: examples/basic-openfoam.md
+      - motorBike: examples/motorbike.md
+      - Online Training & Inference: examples/online-training-inference.md
+      - pitzDaily Optimization: examples/pitzdaily-optimize.md
+  - API Reference:
+      - Overview: api/index.md
+      - Python: api/
+      - OpenFOAM Function Object: getting-started/building-the-function-object.md
+  - About: about.md
+
+plugins:
+  - search
+  - gen-files:
+      scripts:
+        - docs/gen_ref_pages.py
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - section-index
+  - mkdocstrings:
+      enable_inventory: true
+      handlers:
+        python:
+          paths: [src/python]
+          options:
+            allow_inspection: yes
+            annotations_path: brief
+            docstring_section_style: list
+            docstring_style: google
+            filters:
+              - "!^_"
+            inherited_members: yes
+            line_length: 60
+            members_order: source
+            merge_init_into_class: yes
+            separate_signature: yes
+            show_if_no_docstring: no
+            show_object_full_path: no
+            show_root_full_path: yes
+            show_root_heading: no
+            show_root_members_full_path: no
+            show_root_toc_entry: yes
+            show_signature_annotations: yes
+            show_submodules: no
+            show_symbol_type_heading: yes
+            show_symbol_type_toc: yes
+            signature_crossrefs: yes

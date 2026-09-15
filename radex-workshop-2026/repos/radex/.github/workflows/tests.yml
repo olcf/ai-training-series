@@ -1,0 +1,95 @@
+name: Build
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  PYTHON_VERSION: '3.12'
+  _SMARTREDIS_VERSION: "develop"
+  _DRAGON_VERSION: "main"
+
+jobs:
+
+  style:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Set up Python
+      uses: actions/setup-python@v7
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dev dependencies
+      run: |
+            pip install -r dev-resources/requirements-dev.txt
+
+    - name: Check style
+      run: |
+            make -f dev-resources/Makefile black-check; BLACK_RC=$?
+            make -f dev-resources/Makefile isort-check; ISORT_RC=$?
+            exit $((BLACK_RC || ISORT_RC))
+
+  tests:
+    name: Tests on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-24.04, macos-26]
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Set up Python
+      uses: actions/setup-python@v7
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Linux dependencies
+      if: ${{ startsWith(matrix.os, 'ubuntu') }}
+      run: |
+            sudo apt-get update
+            sudo apt-get install -y build-essential gcc g++ make cmake mpich libnuma-dev
+
+    - name: MacOS dependencies
+      if: ${{ startsWith(matrix.os, 'macos') }}
+      run: |
+            brew update
+            brew install cmake mpich autoconf automake libtool
+
+    - name: Install DragonHPC
+      run: |
+            git clone https://github.com/DragonHPC/dragon.git
+            pushd dragon && git checkout $_DRAGON_VERSION && pushd devtools && source VARIABLES && popd && pip install src/
+
+    - name: Install Redis backend
+      run: |
+            git clone -b $_SMARTREDIS_VERSION --single-branch https://github.com/CrayLabs/SmartRedis.git
+            cd SmartRedis && make lib
+
+    - name: Set Radex SmartRedis Environment Variables
+      run: |
+            SR_LIB_DIR=$(find ${PWD}/SmartRedis/install -maxdepth 1 -name 'lib*' -type d)
+            echo "smartredis_DIR=SmartRedis/install/share/cmake/smartredis" >> $GITHUB_ENV
+            echo "SMARTREDIS_INCLUDE_DIR=${PWD}/SmartRedis/install/include" >> $GITHUB_ENV
+            echo "SMARTREDIS_LIB_DIR=${SR_LIB_DIR}" >> $GITHUB_ENV
+            echo "LD_LIBRARY_PATH=${SR_LIB_DIR}:${LD_LIBRARY_PATH}" >> $GITHUB_ENV
+            echo "DYLD_LIBRARY_PATH=${SR_LIB_DIR}:${DYLD_LIBRARY_PATH}" >> $GITHUB_ENV
+
+    - name: Build radex library
+      run: |
+            cmake -S . -B build \
+              -DCMAKE_INSTALL_PREFIX=install \
+              -DALLOW_SYSTEM_PYTHON=ON \
+              -DPython3_FIND_STRATEGY=LOCATION \
+              -DPython3_ROOT_DIR="${pythonLocation}"
+            cmake --build build -j
+            cmake --install build
+
+    - name: Run tests
+      run: |
+            pip install -r dev-resources/requirements-dev.txt
+            make -f dev-resources/Makefile test PYTEST_ARGS="-vvv -s"

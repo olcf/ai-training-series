@@ -1,0 +1,12 @@
+[submodule "repos/radex"]
+	path = repos/radex
+	url = https://github.com/radical-cybertools/radex.git
+[submodule "repos/SmartRedis"]
+	path = repos/SmartRedis
+	url = https://github.com/CrayLabs/SmartRedis.git
+[submodule "repos/rhapsody-plugins-openfoam"]
+	path = repos/rhapsody-plugins-openfoam
+	url = https://github.com/CrayLabs/rhapsody-plugins-openfoam.git
+[submodule "repos/rhapsody"]
+	path = repos/rhapsody
+	url = https://github.com/radical-cybertools/rhapsody.git

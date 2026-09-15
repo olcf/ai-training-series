@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Note exec is done here so that control is passed to dragon. Otherwise, cancelling the workflow does not work
+exec dragon driver-staged.py

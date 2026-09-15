@@ -1,0 +1,32 @@
+// Example controlDict `functions` entry for radexWrite.
+//
+// Add the block below into the `functions { }` section of your
+// system/controlDict.  The `libs` entry must match the library name
+// produced by `wmake` (libradexWrite.so).
+
+/*
+functions
+{
+    radexFields
+    {
+        // Sends named fields to a radex key-value store at every write
+        // interval.  Each field is stored under the key:
+        //   <fieldName>_<subdomainId>
+        // where subdomainId == Pstream::myProcNo().
+        //
+        // The radex backend is selected at compile time:
+        //   Dragon DDict  (default)  – omit -DRADEX_BACKEND_REDIS
+        //   SmartRedis               – add  -DRADEX_BACKEND_REDIS to EXE_INC
+        //
+        // Dragon DDict requires the RADEX_STORE environment variable to be
+        // set to the DDict descriptor before the solver is launched.
+
+        type            radexWrite;
+        libs            (radexWrite);
+
+        // Comma- or space-separated list of volScalarField / volVectorField
+        // names to export.
+        fields          (U p nut nuTilda);
+    }
+}
+*/

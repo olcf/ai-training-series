@@ -1,0 +1,15 @@
+/* rhapsody-plugins-openfoam Documentation Extra Styles */
+
+:root {
+  --rof-primary: #455a64;
+  /* Blue Grey 700 */
+  --rof-secondary: #00897b;
+  /* Teal 600 */
+  --md-primary-fg-color: var(--rof-primary);
+  --md-accent-fg-color: var(--rof-secondary);
+}
+
+.md-nav__item--active > .md-nav__link {
+  color: var(--rof-secondary) !important;
+  font-weight: 700;
+}

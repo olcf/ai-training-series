@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RHAPSODY - Hybrid AI-HPC Workflow Execution at Scale</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00d4ff;
+            --secondary: #7c3aed;
+            --accent: #f59e0b;
+            --dark: #0a0e27;
+            --darker: #050816;
+            --light: #e0f2fe;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Syne', sans-serif;
+            background: var(--darker);
+            color: var(--light);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: var(--darker);
+            overflow: hidden;
+        }
+
+        .grid-overlay {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-image:
+                linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% {
+                transform: translate(0, 0);
+            }
+
+            100% {
+                transform: translate(50px, 50px);
+            }
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: var(--primary);
+            top: -250px;
+            right: -250px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: var(--secondary);
+            bottom: -200px;
+            left: -200px;
+            animation-delay: 7s;
+        }
+
+        .orb-3 {
+            width: 350px;
+            height: 350px;
+            background: var(--accent);
+            top: 50%;
+            left: 50%;
+            animation-delay: 3s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(100px, -50px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-50px, 100px) scale(0.9);
+            }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            background: rgba(10, 14, 39, 0.8);
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8rem 5% 4rem;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero-text {
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-label {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 4.5rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #fff, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.4rem;
+            color: rgba(224, 242, 254, 0.8);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--light);
+            border: 2px solid rgba(0, 212, 255, 0.5);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1.5rem;
+            background: rgba(0, 212, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            animation: fadeInUp 1s ease-out both;
+        }
+
+        .stat-item:nth-child(1) {
+            animation-delay: 0.4s;
+        }
+
+        .stat-item:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .stat-item:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        .stat-number {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: rgba(224, 242, 254, 0.7);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Hero Visual */
+        .hero-visual {
+            position: relative;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+
+        .code-window {
+            background: rgba(10, 14, 39, 0.9);
+            border-radius: 16px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            padding: 1.5rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .window-header {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-red {
+            background: #ff5f56;
+        }
+
+        .dot-yellow {
+            background: #ffbd2e;
+        }
+
+        .dot-green {
+            background: #27c93f;
+        }
+
+        .code-content {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        .code-line {
+            opacity: 0;
+            animation: typeLine 0.5s ease-out forwards;
+        }
+
+        .code-line:nth-child(1) {
+            animation-delay: 0.8s;
+        }
+
+        .code-line:nth-child(2) {
+            animation-delay: 1s;
+        }
+
+        .code-line:nth-child(3) {
+            animation-delay: 1.2s;
+        }
+
+        .code-line:nth-child(4) {
+            animation-delay: 1.4s;
+        }
+
+        .code-line:nth-child(5) {
+            animation-delay: 1.6s;
+        }
+
+        .code-line:nth-child(6) {
+            animation-delay: 1.8s;
+        }
+
+        @keyframes typeLine {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .keyword {
+            color: #c792ea;
+        }
+
+        .function {
+            color: #82aaff;
+        }
+
+        .string {
+            color: #c3e88d;
+        }
+
+        .comment {
+            color: #697098;
+        }
+
+        .number {
+            color: #f78c6c;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 8rem 5%;
+            position: relative;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 5rem;
+            animation: fadeInUp 1s ease-out both;
+        }
+
+        .section-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-description {
+            font-size: 1.2rem;
+            color: rgba(224, 242, 254, 0.7);
+            line-height: 1.8;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: rgba(10, 14, 39, 0.6);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 20px;
+            padding: 2.5rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 1s ease-out both;
+        }
+
+        .feature-card:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .feature-card:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+
+        .feature-card:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .feature-card:nth-child(4) {
+            animation-delay: 0.5s;
+        }
+
+        .feature-card:nth-child(5) {
+            animation-delay: 0.6s;
+        }
+
+        .feature-card:nth-child(6) {
+            animation-delay: 0.7s;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(124, 58, 237, 0.05));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.3);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .icon-1 {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .icon-2 {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+
+        .icon-3 {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+        }
+
+        .icon-4 {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+        }
+
+        .icon-5 {
+            background: linear-gradient(135deg, #fa709a, #fee140);
+        }
+
+        .icon-6 {
+            background: linear-gradient(135deg, #30cfd0, #330867);
+        }
+
+        .feature-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-description {
+            color: rgba(224, 242, 254, 0.7);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-metrics {
+            display: flex;
+            gap: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .metric {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metric-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: rgba(224, 242, 254, 0.6);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Use Cases */
+        .use-cases {
+            padding: 8rem 5%;
+            background: rgba(10, 14, 39, 0.5);
+            position: relative;
+        }
+
+        .use-cases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .use-case-card {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(124, 58, 237, 0.05));
+            border: 2px solid transparent;
+            border-radius: 24px;
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            animation: fadeInUp 1s ease-out both;
+        }
+
+        .use-case-card:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .use-case-card:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+
+        .use-case-card:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .use-case-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .use-case-card:hover {
+            border-color: rgba(0, 212, 255, 0.3);
+            transform: translateY(-10px);
+            box-shadow: 0 30px 80px rgba(0, 212, 255, 0.2);
+        }
+
+        .use-case-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .use-case-number {
+            font-family: 'Orbitron', monospace;
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0.2;
+            margin-bottom: 1rem;
+        }
+
+        .use-case-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .use-case-description {
+            color: rgba(224, 242, 254, 0.8);
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .use-case-highlights {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .highlight-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: rgba(224, 242, 254, 0.9);
+        }
+
+        .highlight-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 8rem 5%;
+            text-align: center;
+            position: relative;
+        }
+
+        .cta-content {
+            max-width: 900px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(124, 58, 237, 0.1));
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 30px;
+            padding: 5rem 3rem;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 1s ease-out both;
+        }
+
+        .cta-content::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            animation: shine 3s ease-in-out infinite;
+        }
+
+        @keyframes shine {
+
+            0%,
+            100% {
+                transform: translateX(-100%) translateY(-100%) rotate(45deg);
+            }
+
+            50% {
+                transform: translateX(100%) translateY(100%) rotate(45deg);
+            }
+        }
+
+        .cta-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-description {
+            font-size: 1.3rem;
+            color: rgba(224, 242, 254, 0.8);
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 5%;
+            border-top: 1px solid rgba(0, 212, 255, 0.1);
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .footer-logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .footer-links a {
+            color: rgba(224, 242, 254, 0.7);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            h1 {
+                font-size: 3rem;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-buttons {
+                justify-content: center;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .features-grid,
+            .use-cases-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        .code-line {
+            opacity: 0;
+            animation: typeLine 0.5s ease-out forwards;
+            padding-left: 0;
+        }
+
+        .code-line.indent-1 {
+            padding-left: 2rem;
+        }
+
+        .code-line.indent-2 {
+            padding-left: 4rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="grid-overlay"></div>
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">RHAPSODY</div>
+        <ul class="nav-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#use-cases">Use Cases</a></li>
+            <li><a href="https://github.com/radical-cybertools/rhapsody" target="_blank">GitHub</a></li>
+            <li><a href="https://radical-cybertools.github.io/rhapsody" target="_blank">Docs</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <span class="hero-label">⚡ Multi-Runtime AI-HPC Middleware</span>
+                <h1>Execute Hybrid AI-HPC Workflows at Scale</h1>
+                <p class="hero-subtitle">
+                    High-performance runtime system enabling concurrent execution of heterogeneous AI-HPC workloads
+                    across leadership-class platforms. Combine simulations, inference, and training in a single
+                    allocation.
+                </p>
+                <div class="cta-buttons">
+                    <a href="https://radical-cybertools.github.io/rhapsody/getting-started/installation/"
+                        class="btn btn-primary">Get Started</a>
+                    <a href="https://github.com/radical-cybertools/rhapsody" class="btn btn-secondary">View on
+                        GitHub</a>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-number">10,000+</div>
+                        <div class="stat-label">Tasks/Second</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">350K</div>
+                        <div class="stat-label">Tokens/Second</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">1,024</div>
+                        <div class="stat-label">Nodes Tested</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="code-window">
+                    <div class="window-header">
+                        <div class="dot dot-red"></div>
+                        <div class="dot dot-yellow"></div>
+                        <div class="dot dot-green"></div>
+                    </div>
+                    <div class="code-content">
+                        <div class="code-line"><span class="keyword">from</span> rhapsody <span
+                                class="keyword">import</span> Session, AITask, ComputeTask</div>
+                        <div class="code-line"></div>
+                        <div class="code-line"><span class="comment"># Define heterogeneous AI-HPC tasks</span></div>
+                        <div class="code-line">tasks = [</div>
+                        <div class="code-line indent-1"><span class="function">AITask</span>(</div>
+                        <div class="code-line indent-2">prompt=<span class="string">'What is the capital of
+                                France?'</span>,</div>
+                        <div class="code-line indent-2">backend=inference_backend.name</div>
+                        <div class="code-line indent-1">),</div>
+                        <div class="code-line indent-1"><span class="function">ComputeTask</span>(</div>
+                        <div class="code-line indent-2">executable=<span class="string">'/usr/bin/echo'</span>,</div>
+                        <div class="code-line indent-2">arguments=[<span class="string">'Hello from Dragon!'</span>],
+                        </div>
+                        <div class="code-line indent-2">backend=execution_backend.name</div>
+                        <div class="code-line indent-1">)</div>
+                        <div class="code-line">]</div>
+                        <div class="code-line"></div>
+                        <div class="code-line"><span class="comment"># Initialize and execute</span></div>
+                        <div class="code-line">session = <span class="function">Session</span>([execution_backend,
+                            inference_backend])</div>
+                        <div class="code-line">results = session.<span class="function">submit</span>(tasks)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-header">
+            <div class="section-label">Capabilities</div>
+            <h2 class="section-title">Built for Hybrid AI-HPC at Scale</h2>
+            <p class="section-description">
+                RHAPSODY composes existing runtime systems through uniform abstractions, enabling concurrent execution
+                of simulations, inference services, and tightly coupled AI-HPC tasks.
+            </p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon icon-1">🚀</div>
+                <h3 class="feature-title">High-Throughput Execution</h3>
+                <p class="feature-description">
+                    Execute thousands of fine-grained tasks per second with minimal overhead. Near-linear scaling
+                    demonstrated up to 1,024 nodes on leadership-class systems.
+                </p>
+                <div class="feature-metrics">
+                    <div class="metric">
+                        <span class="metric-value">11K+</span>
+                        <span class="metric-label">tasks/sec</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value">&lt;300µs</span>
+                        <span class="metric-label">overhead</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon icon-2">🔄</div>
+                <h3 class="feature-title">Heterogeneous Workloads</h3>
+                <p class="feature-description">
+                    Concurrently execute MPI simulations, GPU kernels, CPU analytics, and Python functions. Sustain up
+                    to 22 distinct task types without artificial phase separation.
+                </p>
+                <div class="feature-metrics">
+                    <div class="metric">
+                        <span class="metric-value">22+</span>
+                        <span class="metric-label">task types</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value">95%</span>
+                        <span class="metric-label">GPU util</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon icon-3">🧠</div>
+                <h3 class="feature-title">Inference at Scale</h3>
+                <p class="feature-description">
+                    Deploy persistent vLLM services with intelligent request routing. Process 350K+ tokens/second with
+                    balanced load distribution across multi-node inference clusters.
+                </p>
+                <div class="feature-metrics">
+                    <div class="metric">
+                        <span class="metric-value">350K</span>
+                        <span class="metric-label">tokens/sec</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value">8x</span>
+                        <span class="metric-label">scaling</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon icon-4">⚡</div>
+                <h3 class="feature-title">Tightly Coupled AI-HPC</h3>
+                <p class="feature-description">
+                    Low-latency data exchange between simulations and AI components via SmartRedis. Memory-based
+                    coupling achieves 50% faster execution than filesystem methods.
+                </p>
+                <div class="feature-metrics">
+                    <div class="metric">
+                        <span class="metric-value">0.08ms</span>
+                        <span class="metric-label">latency</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value">50%</span>
+                        <span class="metric-label">faster</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon icon-5">🤖</div>
+                <h3 class="feature-title">Agentic Workflows</h3>
+                <p class="feature-description">
+                    Support LLM-driven decision making with Flowgentic integration. Maintain bounded lag between agent
+                    decisions and HPC task execution at scale.
+                </p>
+                <div class="feature-metrics">
+                    <div class="metric">
+                        <span class="metric-value">49K+</span>
+                        <span class="metric-label">agents</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value">&lt;5%</span>
+                        <span class="metric-label">overhead</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon icon-6">🔧</div>
+                <h3 class="feature-title">Multi-Runtime Integration</h3>
+                <p class="feature-description">
+                    Compose Dragon, Flux, RADICAL-Pilot, vLLM, and DeepSpeed through uniform APIs. Deploy without
+                    platform-specific customization on Frontier, Perlmutter, and more.
+                </p>
+                <div class="feature-metrics">
+                    <div class="metric">
+                        <span class="metric-value">6+</span>
+                        <span class="metric-label">runtimes</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-value">3+</span>
+                        <span class="metric-label">platforms</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Use Cases Section -->
+    <section class="use-cases" id="use-cases">
+        <div class="section-header">
+            <div class="section-label">Applications</div>
+            <h2 class="section-title">Real-World Scientific Impact</h2>
+            <p class="section-description">
+                Powering cutting-edge research across drug discovery, foundation models, and AI-driven simulation
+                campaigns on the American Science Cloud.
+            </p>
+        </div>
+        <div class="use-cases-grid">
+            <div class="use-case-card">
+                <div class="use-case-number">01</div>
+                <h3 class="use-case-title">Drug Discovery (IMPECCABLE)</h3>
+                <p class="use-case-description">
+                    Accelerate COVID-19 drug discovery by combining molecular dynamics simulations with ML-based docking
+                    surrogates and active learning loops.
+                </p>
+                <div class="use-case-highlights">
+                    <div class="highlight-item">
+                        <span class="highlight-icon">✓</span>
+                        <span>Large-scale MD simulations (7,168 ranks)</span>
+                    </div>
+                    <div class="highlight-item">
+                        <span class="highlight-icon">✓</span>
+                        <span>GPU-accelerated ML surrogates</span>
+                    </div>
+                    <div class="highlight-item">
+                        <span class="highlight-icon">✓</span>
+                        <span>Iterative active learning refinement</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="use-case-card">
+                <div class="use-case-number">02</div>
+                <h3 class="use-case-title">Foundation Models (LUCID & SPHERICAL)</h3>
+                <p class="use-case-description">
+                    Process scientific literature with long-context LLMs for hypothesis generation. Scale inference to 8
+                    GPU nodes with sustained high utilization.
+                </p>
+                <div class="use-case-highlights">
+                    <div class="highlight-item">
+                        <span class="highlight-icon">✓</span>
+                        <span>Multi-instance vLLM deployment</span>
+                    </div>
+                    <div class="highlight-item">
+                        <span class="highlight-icon">✓</span>
+                        <span>Token-aware load balancing</span>
+                    </div>
+                    <div class="highlight-item">
+                        <span class="highlight-icon">✓</span>
+                        <span>Concurrent CPU/GPU workflows</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="use-case-card">
+                <div class="use-case-number">03</div>
+                <h3 class="use-case-title">AI-Steered Simulations (IMPRESS)</h3>
+                <p class="use-case-description">
+                    Use LangGraph-based AI agents to dynamically orchestrate protein structure workflows, adapting task
+                    selection based on intermediate results.
+                </p>
+                <div class="use-case-highlights">
+                    <div class="highlight-item">
+                        <span class="highlight-icon">✓</span>
+                        <span>LLM-driven workflow planning</span>
+                    </div>
+                    <div class="highlight-item">
+                        <span class="highlight-icon">✓</span>
+                        <span>Low-latency AI-HPC coupling</span>
+                    </div>
+                    <div class="highlight-item">
+                        <span class="highlight-icon">✓</span>
+                        <span>Dynamic resource adaptation</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2 class="cta-title">Ready to Scale Your AI-HPC Workflows?</h2>
+            <p class="cta-description">
+                Join the scientific community using RHAPSODY on the American Science Cloud and leadership-class HPC
+                platforms.
+            </p>
+            <div class="cta-buttons">
+                <a href="https://radical-cybertools.github.io/rhapsody/getting-started/quick-start/"
+                    class="btn btn-primary">Quick Start Guide</a>
+                <a href="https://github.com/radical-cybertools/rhapsody" class="btn btn-secondary">Explore GitHub</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">RHAPSODY</div>
+            <div class="footer-links">
+                <a href="https://radical-cybertools.github.io/rhapsody">Documentation</a>
+                <a href="https://github.com/radical-cybertools/rhapsody">GitHub</a>
+                <a href="https://radical.rutgers.edu">RADICAL Lab</a>
+                <a href="https://genesis.energy.gov/">Genesis Mission</a>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

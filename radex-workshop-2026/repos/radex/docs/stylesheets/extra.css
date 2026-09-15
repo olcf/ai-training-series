@@ -1,0 +1,27 @@
+/* RaDex Documentation Extra Styles */
+
+:root {
+  --radex-sage: #9f9a7f;
+  /* primary: requested #9F9A7F */
+  --radex-sage-text: #2b2a22;
+  /* dark text for legibility on the sage header/tabs bar */
+  --radex-almond: #efdecd;
+  /* accent: requested "almondine" */
+  --radex-almond-dark: #8b6644;
+  /* almond, darkened to stay legible as link/accent text on a light page */
+
+  --md-primary-fg-color: var(--radex-sage);
+  --md-primary-bg-color: var(--radex-sage-text);
+  --md-accent-fg-color: var(--radex-almond-dark);
+}
+
+/* On the dark (slate) scheme the page background is dark, so the pale
+   almondine itself reads clearly as the accent color without darkening. */
+[data-md-color-scheme="slate"] {
+  --md-accent-fg-color: var(--radex-almond);
+}
+
+.md-nav__item--active > .md-nav__link {
+  color: var(--md-accent-fg-color) !important;
+  font-weight: 700;
+}

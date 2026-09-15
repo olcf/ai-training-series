@@ -1,0 +1,23 @@
+# .github/actionlint.yaml
+# Configuration for actionlint to lint GitHub Actions workflow files
+
+# Enable all checks
+on: true
+
+# Shellcheck configuration
+shellcheck:
+  enable: true
+  exclude-rules:
+    # Disable overly strict shellcheck rules
+    - "SC2034"  # Variable appears unused
+    - "SC1091"  # Not following sourced files
+
+# Pyflakes configuration for Python scripts in workflows
+pyflakes:
+  enable: true
+
+# Allow specific patterns that are common in RHAPSODY workflows
+ignore:
+  # Allow common CI patterns
+  - "SC2086"  # Double quote to prevent globbing
+  - "SC2312"  # Consider invoking this command separately

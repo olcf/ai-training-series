@@ -1,0 +1,34 @@
+[default]
+extend-ignore-identifiers-re = [
+    # Allow common technical terms and variable names
+    "rhapsody",
+    "asyncflow",
+    "asyncio",
+    "pytest",
+    "unittest",
+    "traceback",
+    # Add any project-specific terms that get flagged
+]
+
+[default.extend-words]
+# Add specific words that should not be corrected
+# rhapsody = "rhapsody"
+HPE = "HPE"
+
+[files]
+extend-exclude = [
+    "*.pyc",
+    "*.pyo",
+    "*.orig",
+    "*.rej",
+    "*~",
+    "*.bak",
+    ".git/**",
+    ".pytest_cache/**",
+    ".mypy_cache/**",
+    ".ruff_cache/**",
+    "__pycache__/**",
+    "*.egg-info/**",
+    "dist/**",
+    "build/**",
+]

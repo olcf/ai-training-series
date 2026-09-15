@@ -1,0 +1,92 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.12'
+  _SMARTREDIS_VERSION: "develop"
+  _DRAGON_VERSION: "main"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-docs-${{ hashFiles('dev-resources/requirements-doc.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-docs-
+            ${{ runner.os }}-pip-
+
+      - name: Linux dependencies
+        run: |
+              sudo apt-get update
+              sudo apt-get install -y build-essential gcc g++ make cmake mpich libnuma-dev doxygen
+
+      - name: Install DragonHPC
+        run: |
+              git clone https://github.com/DragonHPC/dragon.git
+              pushd dragon && git checkout $_DRAGON_VERSION && pushd devtools && source VARIABLES && popd && pip install -e src/
+
+      - name: Install Redis backend
+        run: |
+              git clone -b $_SMARTREDIS_VERSION --single-branch https://github.com/CrayLabs/SmartRedis.git
+              cd SmartRedis && make lib
+
+      - name: Set Radex SmartRedis Environment Variables
+        run: |
+              SR_LIB_DIR=$(find ${PWD}/SmartRedis/install -maxdepth 1 -name 'lib*' -type d)
+              echo "smartredis_DIR=SmartRedis/install/share/cmake/smartredis" >> $GITHUB_ENV
+              echo "SMARTREDIS_INCLUDE_DIR=${PWD}/SmartRedis/install/include" >> $GITHUB_ENV
+              echo "SMARTREDIS_LIB_DIR=${SR_LIB_DIR}" >> $GITHUB_ENV
+              echo "LD_LIBRARY_PATH=${SR_LIB_DIR}:${LD_LIBRARY_PATH}" >> $GITHUB_ENV
+
+      - name: Build radex library
+        run: |
+              cmake -S . -B build \
+                -DCMAKE_INSTALL_PREFIX=install \
+                -DALLOW_SYSTEM_PYTHON=ON \
+                -DPython3_FIND_STRATEGY=LOCATION \
+                -DPython3_ROOT_DIR="${pythonLocation}"
+              cmake --build build -j
+              cmake --install build
+
+      - name: Install doc dependencies
+        run: |
+              pip install -r dev-resources/requirements-doc.txt
+
+      - name: Build docs
+        run: make -f dev-resources/Makefile docs
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

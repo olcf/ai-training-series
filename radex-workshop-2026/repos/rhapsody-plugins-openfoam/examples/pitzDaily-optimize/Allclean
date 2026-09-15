@@ -1,0 +1,5 @@
+rm -rf ddict_orc* \
+       __pycache__ \
+       runinfo \
+       run-pD-* \
+       rhapsody.session.*

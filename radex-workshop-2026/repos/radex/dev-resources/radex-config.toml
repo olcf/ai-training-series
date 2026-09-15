@@ -1,0 +1,19 @@
+[tool.pytest]
+addopts = [
+    "--report-chars=a",
+]
+strict_config = true
+strict_markers = true
+markers = [
+    "slow: Test may be slow to run",
+    "compiled: Test has a component compiled at run time",
+    "example: Test is running one of the examples",
+]
+
+[tool.black]
+
+[tool.isort]
+profile = "black"
+py_version = 312
+src_paths = ["../src/python/src", "../tests", "../example"]
+known_first_party = ["radex"]

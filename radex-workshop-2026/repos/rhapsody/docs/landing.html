@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RHAPSODY | Hybrid AI-HPC Workflow Execution</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            /* Dask Light Theme Colors */
+            --primary: #fb7014;
+            --primary-dark: #fb7014;
+            --secondary: #4F5D8E;
+            --accent: #C13C5C;
+            --dark: #010016;
+            --light: #FFFFFF;
+            --background: #FFFFFF;
+            --surface: #F9FAFB;
+            --text: #000000;
+            --text-light: #6B7280;
+            --border: #E5E7EB;
+        }
+
+        [data-theme="dark"] {
+            /* Dask Dark Theme Colors */
+            --primary: #fb7014;
+            --primary-dark: #fb7014;
+            --secondary: #6B7CA8;
+            --accent: #E05472;
+            --dark: #ffffff;
+            --light: #1E1E1E;
+            --background: #1E1E1E;
+            --surface: #080018;
+            --text: #ffffff;
+            --text-light: #9CA3AF;
+            --border: #374151;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: var(--background);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            padding: 1rem 5%;
+            transition: background-color 0.3s ease;
+        }
+
+        .theme-toggle {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--primary);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 10rem 5% 6rem;
+            text-align: center;
+            background: var(--background);
+            transition: background-color 0.3s ease;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(253, 160, 97, 0.15);
+            color: var(--primary-dark);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(253, 160, 97, 0.3);
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: var(--text-light);
+            margin-bottom: 3rem;
+            line-height: 1.6;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-bottom: 4rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--background);
+            color: var(--text);
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Stats Bar */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3rem;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem;
+            background: var(--background);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+
+        /* Feature Tabs Section */
+        .features {
+            padding: 6rem 5%;
+            background: var(--background);
+            transition: background-color 0.3s ease;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 4rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        /* Tabs */
+        .tabs {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .tab-button {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .tab-button.active {
+            color: var(--primary);
+        }
+
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        .tab-button:hover {
+            color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 4rem 0;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tab-text h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+
+        .tab-text p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+
+        .tab-links {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .tab-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .tab-links a:hover {
+            color: var(--primary-dark);
+        }
+
+        .tab-icons {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .tab-icon {
+            height: 32px;
+            opacity: 0.6;
+        }
+
+        /* Code Block */
+        .code-window {
+            background: #1e1e1e;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .code-header {
+            background: #2d2d2d;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .code-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-red {
+            background: #ff5f56;
+        }
+
+        .dot-yellow {
+            background: #ffbd2e;
+        }
+
+        .dot-green {
+            background: #27c93f;
+        }
+
+        .code-content {
+            padding: 1.5rem;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            color: #d4d4d4;
+            overflow-x: auto;
+        }
+
+        .code-line {
+            padding-left: 0;
+        }
+
+        .code-line.indent-1 {
+            padding-left: 2rem;
+        }
+
+        .code-line.indent-2 {
+            padding-left: 4rem;
+        }
+
+        .keyword {
+            color: #569cd6;
+        }
+
+        .function {
+            color: #dcdcaa;
+        }
+
+        .string {
+            color: #ce9178;
+        }
+
+        .comment {
+            color: #6a9955;
+        }
+
+        .number {
+            color: #b5cea8;
+        }
+
+        /* Performance Section */
+        .performance {
+            padding: 6rem 5%;
+            background: var(--surface);
+            transition: background-color 0.3s ease;
+        }
+
+        .perf-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3rem;
+        }
+
+        .perf-card {
+            background: var(--background);
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .perf-card h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .perf-card p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .perf-metric {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(253, 160, 97, 0.15);
+            color: var(--primary-dark);
+            border-radius: 6px;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid rgba(253, 160, 97, 0.3);
+        }
+
+        /* Deployment Section */
+        .deployment {
+            padding: 6rem 5%;
+            background: var(--background);
+            transition: background-color 0.3s ease;
+        }
+
+        .deploy-tabs {
+            max-width: 1200px;
+            margin: 4rem auto 0;
+            display: flex;
+            gap: 2rem;
+        }
+
+        .deploy-option {
+            flex: 1;
+            background: var(--background);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 3rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .deploy-option:hover {
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(253, 160, 97, 0.15);
+            transform: translateY(-5px);
+        }
+
+        .deploy-option h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .deploy-option p {
+            font-size: 1.05rem;
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+
+        .deploy-logos {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .deploy-logo {
+            height: 28px;
+            opacity: 0.5;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 6rem 5%;
+            background: var(--secondary);
+            color: white;
+            text-align: center;
+        }
+
+        .cta-section .section-title {
+            color: white;
+        }
+
+        .cta-section .section-subtitle {
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .cta-section .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .cta-section .btn-secondary {
+            background: transparent;
+            color: white;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .cta-section .btn-secondary:hover {
+            border-color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 5%;
+            background: var(--surface);
+            color: var(--text-light);
+            border-top: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 1rem;
+        }
+
+        .footer-section h4 {
+            color: var(--text);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .tab-content.active {
+                grid-template-columns: 1fr;
+            }
+
+            .perf-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .deploy-tabs {
+                flex-direction: column;
+            }
+
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="#" class="logo">RHAPSODY</a>
+            <div style="display: flex; align-items: center; gap: 2rem;">
+                <ul class="nav-links">
+                    <li><a href="https://radical-cybertools.github.io/rhapsody/getting-started/">Get Started</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="https://radical-cybertools.github.io/rhapsody">Docs</a></li>
+                    <li><a href="https://github.com/radical-cybertools/rhapsody">GitHub</a></li>
+                </ul>
+                <button class="theme-toggle" id="themeToggle">
+                    <span id="themeIcon">🌙</span>
+                    <span id="themeText">Dark</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <span class="hero-badge">Multi-Runtime AI-HPC Middleware</span>
+            <h1>Hybrid AI-HPC Workflows</h1>
+            <p class="hero-subtitle">
+                Fast and easy parallel execution that scales. Run simulations, inference, and training concurrently on
+                leadership-class HPC systems.
+            </p>
+            <div class="cta-buttons">
+                <a href="https://radical-cybertools.github.io/rhapsody/getting-started/installation/"
+                    class="btn btn-primary">Get Started</a>
+                <a href="https://github.com/radical-cybertools/rhapsody" class="btn btn-secondary">View on GitHub</a>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number">10,000+</div>
+                    <div class="stat-label">Tasks per Second</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">350K</div>
+                    <div class="stat-label">Tokens per Second</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">1,024</div>
+                    <div class="stat-label">Nodes Tested at Scale</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-header">
+            <h2 class="section-title">What you can do with RHAPSODY</h2>
+            <p class="section-subtitle">Concurrent execution of heterogeneous AI-HPC workloads through uniform
+                abstractions</p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab-buttons">
+                <button class="tab-button active" data-tab="heterogeneous">Heterogeneous Workloads</button>
+                <button class="tab-button" data-tab="inference">High-Throughput Inference</button>
+                <button class="tab-button" data-tab="coupling">Integrations: AI-HPC Workflows</button>
+                <button class="tab-button" data-tab="agents">Integrations: Agentic Workflows</button>
+            </div>
+
+            <!-- Heterogeneous Tab -->
+            <div class="tab-content active" id="heterogeneous">
+                <div class="tab-text">
+                    <h3>Heterogeneous Workloads</h3>
+                    <p>Execute diverse task types concurrently—MPI simulations, GPU kernels, CPU analytics, and Python
+                        functions. RHAPSODY sustains up to 6 distinct task types without artificial phase separation,
+                        maintaining 95% GPU utilization.</p>
+                    <div class="tab-links">
+                        <a href="https://radical-cybertools.github.io/rhapsody/api/">Documentation →</a>
+                        <a href="https://github.com/radical-cybertools/rhapsody">Performance Benchmarks →</a>
+                    </div>
+                    <div class="tab-icons">
+                        <span style="color: var(--text-light); font-weight: 600;">Supports:</span>
+                        <span style="color: var(--text); font-weight: 600;">Dragon</span>
+                        <span style="color: var(--text); font-weight: 600;">Flux</span>
+                        <span style="color: var(--text); font-weight: 600;">RADICAL-Pilot</span>
+                    </div>
+                </div>
+                <div class="code-window">
+                    <div class="code-header">
+                        <div class="code-dot dot-red"></div>
+                        <div class="code-dot dot-yellow"></div>
+                        <div class="code-dot dot-green"></div>
+                    </div>
+                    <div class="code-content">
+                        <div class="code-line"><span class="keyword">from</span> rhapsody <span
+                                class="keyword">import</span> Session, AITask, ComputeTask</div>
+                        <div class="code-line"></div>
+                        <div class="code-line"><span class="comment"># Define heterogeneous AI-HPC tasks</span></div>
+                        <div class="code-line">tasks = [</div>
+                        <div class="code-line indent-1"><span class="function">AITask</span>(</div>
+                        <div class="code-line indent-2">prompt=<span class="string">'What is the capital of
+                                France?'</span>,</div>
+                        <div class="code-line indent-2">backend=inference_backend.name</div>
+                        <div class="code-line indent-1">),</div>
+                        <div class="code-line indent-1"><span class="function">ComputeTask</span>(</div>
+                        <div class="code-line indent-2">executable=<span class="string">'/usr/bin/echo'</span>,</div>
+                        <div class="code-line indent-2">arguments=[<span class="string">'Hello from Dragon!'</span>],
+                        </div>
+                        <div class="code-line indent-2">backend=execution_backend.name</div>
+                        <div class="code-line indent-1">)</div>
+                        <div class="code-line">]</div>
+                        <div class="code-line"></div>
+                        <div class="code-line"><span class="comment"># Initialize and execute</span></div>
+                        <div class="code-line">session = <span class="function">Session</span>([execution_backend,
+                            inference_backend])</div>
+                        <div class="code-line">results = session.<span class="function">submit</span>(tasks)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inference Tab -->
+            <div class="tab-content" id="inference">
+                <div class="tab-text">
+                    <h3>High-Throughput Inference</h3>
+                    <p>Deploy persistent vLLM services with intelligent request routing. Process 350K+ tokens per second
+                        with balanced load distribution across multi-node inference clusters. Near-linear scaling
+                        demonstrated up to 8 GPU nodes.</p>
+                    <div class="tab-links">
+                        <a href="https://radical-cybertools.github.io/rhapsody/api/">Documentation →</a>
+                    </div>
+                    <div class="tab-icons">
+                        <span style="color: var(--text-light); font-weight: 600;">Integrates with:</span>
+                        <span style="color: var(--text); font-weight: 600;">vLLM</span>
+                        <span style="color: var(--text); font-weight: 600;">PyTorch</span>
+                        <span style="color: var(--text); font-weight: 600;">DeepSpeed (upcoming)</span>
+                    </div>
+                </div>
+                <div class="code-window">
+                    <div class="code-header">
+                        <div class="code-dot dot-red"></div>
+                        <div class="code-dot dot-yellow"></div>
+                        <div class="code-dot dot-green"></div>
+                    </div>
+                    <div class="code-content">
+                        <div class="code-line"><span class="keyword">from</span> rhapsody <span
+                                class="keyword">import</span> Session</div>
+                        <div class="code-line"><span class="keyword">from</span> rhapsody.backends <span
+                                class="keyword">import</span> DragonVllmInferenceBackend</div>
+                        <div class="code-line"></div>
+                        <div class="code-line"><span class="comment"># Launch multi-node vLLM service</span></div>
+                        <div class="code-line">vllm = <span class="function">DragonVllmInferenceBackend</span>(</div>
+                        <div class="code-line indent-1">model=<span class="string">"meta-llama/Llama-2-70b"</span>,
+                        </div>
+                        <div class="code-line indent-1">nodes=<span class="number">32</span>,</div>
+                        <div class="code-line indent-1">tp=<span class="number">4</span></div>
+                        <div class="code-line">)</div>
+                        <div class="code-line"></div>
+                        <div class="code-line">session = <span class="function">Session</span>([vllm])</div>
+                        <div class="code-line"></div>
+                        <div class="code-line"><span class="comment"># Process 8,000 prompts with load balancing</span>
+                        </div>
+                        <div class="code-line">prompts = [<span class="string">"Analyze..."</span> <span
+                                class="keyword">for</span> _ <span class="keyword">in</span> <span
+                                class="function">range</span>(<span class="number">8000</span>)]</div>
+                        <div class="code-line">results = session.<span class="function">submit_tasks</span>(prompts)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coupling Tab -->
+            <div class="tab-content" id="coupling">
+                <div class="tab-text">
+                    <h3>Integrations: Coupled AI-HPC</h3>
+                    <p>Low-latency data exchange between simulations and AI components via Memory-based
+                        coupling achieves 50% faster execution than filesystem methods with only 0.08ms latency for
+                        PUT/GET operations.</p>
+                    <div class="tab-links">
+                        <a href="https://radical-cybertools.github.io/rhapsody/api/">Documentation →</a>
+                    </div>
+                    <div class="tab-icons">
+                        <span style="color: var(--text-light); font-weight: 600;">Data Exchange:</span>
+                        <span style="color: var(--text); font-weight: 600;">SmartRedis</span>
+                        <span style="color: var(--text); font-weight: 600;">Redis</span>
+                    </div>
+                </div>
+                <div class="code-window">
+                    <div class="code-header">
+                        <div class="code-dot dot-red"></div>
+                        <div class="code-dot dot-yellow"></div>
+                        <div class="code-dot dot-green"></div>
+                    </div>
+                    <div class="code-content">
+                        <div class="code-line"><span class="keyword">from</span> rhapsody <span
+                                class="keyword">import</span> Session</div>
+                        <div class="code-line"><span class="keyword">from</span> radical.asyncflow <span
+                                class="keyword">import</span> WorkflowManager</div>
+                        <div class="code-line"></div>
+                        <div class="code-line"><span class="comment"># Create coupled simulation-inference
+                                workflow</span></div>
+
+
+                        <div class="code-line">flow = <span class="function">WorkflowManager()</span></div>
+                        <div class="code-line"></div>
+                        <div class="code-line"><span class="comment"># Simulation writes state to Redis</span></div>
+                        <div class="code-line">@flow.function_task</div>
+                        <div class="code-line"><span class="keyword">async def</span> <span
+                                class="function">simulation</span>(step):</div>
+                        <div class="code-line indent-1">state = compute_state(step)</div>
+                        <div class="code-line indent-1">redis_client.<span class="function">put_tensor</span>(<span
+                                class="string">f"state_{step}"</span>, state)</div>
+                        <div class="code-line"></div>
+                        <div class="code-line"><span class="comment"># AI task reads from Redis for inference</span>
+                        </div>
+                        <div class="code-line">@flow.function_task</div>
+                        <div class="code-line"><span class="keyword">async def</span> <span
+                                class="function">ai_inference</span>(step):</div>
+                        <div class="code-line indent-1">state = redis_client.<span
+                                class="function">get_tensor</span>(<span class="string">f"state_{step}"</span>)</div>
+                        <div class="code-line indent-1"><span class="keyword">return</span> model.<span
+                                class="function">predict</span>(state)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agents Tab -->
+            <div class="tab-content" id="agents">
+                <div class="tab-text">
+                    <h3>Integrations: Agentic Workflows</h3>
+                    <p>Support LLM-driven decision making with Flowgentic integration. Maintain bounded lag between
+                        agent decisions and HPC task execution at scale. Tested with 49,000+ agents managing dynamic
+                        workflow orchestration.</p>
+                    <div class="tab-links">
+                        <a href="https://radical-cybertools.github.io/rhapsody/api/">Documentation →</a>
+                    </div>
+                    <div class="tab-icons">
+                        <span style="color: var(--text-light); font-weight: 600;">Frameworks:</span>
+                        <span style="color: var(--text); font-weight: 600;">Flowgentic</span>
+                        <span style="color: var(--text); font-weight: 600;">LangGraph</span>
+                    </div>
+                </div>
+                <div class="code-window">
+                    <div class="code-header">
+                        <div class="code-dot dot-red"></div>
+                        <div class="code-dot dot-yellow"></div>
+                        <div class="code-dot dot-green"></div>
+                    </div>
+                    <div class="code-content">
+                        <div class="code-line"><span class="keyword">from</span> rhapsody <span
+                                class="keyword">import</span> Session</div>
+                        <div class="code-line"><span class="keyword">from</span> flowgentic <span
+                                class="keyword">import</span> Agent</div>
+                        <div class="code-line"></div>
+                        <div class="code-line"><span class="comment"># AI agent dynamically plans workflow</span></div>
+                        <div class="code-line">agent = <span class="function">Agent</span>(</div>
+                        <div class="code-line indent-1">model=<span class="string">"gpt-4"</span>,</div>
+                        <div class="code-line indent-1">tools=[simulation_tool, analysis_tool]</div>
+                        <div class="code-line">)</div>
+                        <div class="code-line"></div>
+                        <div class="code-line">session = <span class="function">Session</span>([execution_backend])
+                        </div>
+                        <div class="code-line"></div>
+                        <div class="code-line"><span class="comment"># Agent decides which HPC tasks to run</span></div>
+                        <div class="code-line"><span class="keyword">for</span> step <span class="keyword">in</span>
+                            <span class="function">range</span>(<span class="number">100</span>):
+                        </div>
+                        <div class="code-line indent-1">decision = agent.<span
+                                class="function">decide</span>(current_state)</div>
+                        <div class="code-line indent-1">task = <span class="function">create_task</span>(decision)</div>
+                        <div class="code-line indent-1">result = session.<span class="function">submit</span>(task)
+                        </div>
+                        <div class="code-line indent-1">current_state = <span
+                                class="function">update_state</span>(result)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Performance Section -->
+    <section class="performance">
+        <div class="section-header">
+            <h2 class="section-title">Performance at Scale</h2>
+            <p class="section-subtitle">Tested on leadership-class HPC systems including OLCF Frontier, NERSC
+                Perlmutter, and Purdue Anvil</p>
+        </div>
+        <div class="perf-grid">
+            <div class="perf-card">
+                <h3>Fast Execution</h3>
+                <p>RHAPSODY introduces minimal overhead, achieving 11,000+ tasks per second throughput with less than
+                    300 microseconds per-task overhead on distributed workers.</p>
+                <span class="perf-metric">11K tasks/sec</span>
+                <span class="perf-metric">&lt;300µs overhead</span>
+            </div>
+            <div class="perf-card">
+                <h3>Sustained Heterogeneity</h3>
+                <p>Concurrently execute up to 6 distinct task types spanning MPI simulations, GPU kernels, and Python
+                    functions without runtime-imposed phase separation.</p>
+                <span class="perf-metric">6 task types</span>
+                <span class="perf-metric">95% GPU utilization</span>
+            </div>
+            <div class="perf-card">
+                <h3>Inference Scaling</h3>
+                <p>Near-linear scaling demonstrated for high-throughput inference workloads, processing 350,000 tokens
+                    per second across 8 GPU nodes with intelligent load balancing.</p>
+                <span class="perf-metric">350K tokens/sec</span>
+                <span class="perf-metric">8x scaling</span>
+            </div>
+            <div class="perf-card">
+                <h3>Efficient Coupling</h3>
+                <p>Memory-based coupling between AI and HPC tasks achieves 50% faster execution than filesystem methods
+                    with minimal data transfer overhead.</p>
+                <span class="perf-metric">0.08ms latency</span>
+                <span class="perf-metric">50% faster</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Deployment Section -->
+    <section class="deployment">
+        <div class="section-header">
+            <h2 class="section-title">Where you can run RHAPSODY</h2>
+            <p class="section-subtitle">Deploy on local and HPC systems with no platform-specific customization required</p>
+        </div>
+        <div class="deploy-tabs">
+            <div class="deploy-option">
+                <h3>Leadership-Class HPC</h3>
+                <p>Run RHAPSODY on supercomputers like OLCF Frontier, NERSC Perlmutter, and other leadership-class
+                    systems. Integrates with Slurm, PBS Pro, and other HPC schedulers.</p>
+                <div class="deploy-logos">
+                    <span style="color: var(--text); font-weight: 600;">OLCF Frontier</span>
+                    <span style="color: var(--text); font-weight: 600;">NERSC Perlmutter</span>
+                    <span style="color: var(--text); font-weight: 600;">Purdue Anvil</span>
+                </div>
+            </div>
+            <div class="deploy-option">
+                <h3>American Science Cloud</h3>
+                <p>Deploy on the Genesis Mission Platform—a federated DOE infrastructure for building and using
+                    scientific foundation models across distributed sites.</p>
+                <div class="deploy-logos">
+                    <span style="color: var(--text); font-weight: 600;">Genesis Platform</span>
+                    <span style="color: var(--text); font-weight: 600;">DOE Facilities</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="section-header">
+            <h2 class="section-title">Super easy to get started</h2>
+            <p class="section-subtitle">Install RHAPSODY and start scaling your AI-HPC workflows today</p>
+        </div>
+        <div class="cta-buttons">
+            <a href="https://radical-cybertools.github.io/rhapsody/getting-started/installation/"
+                class="btn btn-primary">Install Now</a>
+            <a href="https://radical-cybertools.github.io/rhapsody" class="btn btn-secondary">Read Documentation</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div>
+                <div class="footer-logo">RHAPSODY</div>
+                <p>Multi-runtime middleware for hybrid AI-HPC workflows</p>
+            </div>
+            <div class="footer-section">
+                <h4>Get Started</h4>
+                <ul class="footer-links">
+                    <li><a
+                            href="https://radical-cybertools.github.io/rhapsody/getting-started/installation/">Installation</a>
+                    </li>
+                    <li><a href="https://radical-cybertools.github.io/rhapsody/getting-started/quick-start/">Quick
+                            Start</a></li>
+                    <li><a href="https://radical-cybertools.github.io/rhapsody">Documentation</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Community</h4>
+                <ul class="footer-links">
+                    <li><a href="https://github.com/radical-cybertools/rhapsody">GitHub</a></li>
+                    <li><a href="https://github.com/radical-cybertools/rhapsody/issues">Issues</a></li>
+                    <li><a href="https://radical.rutgers.edu">RADICAL Lab</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Project</h4>
+                <ul class="footer-links">
+                    <li><a href="https://genesis.energy.gov/">Genesis Mission</a></li>
+                    <li><a href="https://radical-cybertools.github.io/rhapsody/about/">About</a></li>
+                    <li><a href="https://radical-cybertools.github.io/rhapsody/contributing/">Contributing</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeText = document.getElementById('themeText');
+        const html = document.documentElement;
+
+        // Check for saved theme preference or default to light
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        html.setAttribute('data-theme', currentTheme);
+        updateThemeButton(currentTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeButton(newTheme);
+        });
+
+        function updateThemeButton(theme) {
+            if (theme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Light';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Dark';
+            }
+        }
+
+        // Tab functionality
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetTab = button.dataset.tab;
+
+                // Remove active class from all buttons and contents
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+
+                // Add active class to clicked button and corresponding content
+                button.classList.add('active');
+                document.getElementById(targetTab).classList.add('active');
+            });
+        });
+    </script>
+</body>
+
+</html>

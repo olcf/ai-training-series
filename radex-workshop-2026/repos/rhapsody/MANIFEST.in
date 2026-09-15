@@ -1,0 +1,6 @@
+include README.md
+include LICENSE
+recursive-include src/rhapsody *.py
+recursive-include tests *.py
+recursive-include docs *.md *.rst
+recursive-include bin *.md

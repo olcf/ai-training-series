@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+cd "${0%/*}" || exit 1
+
+if [ -z "$FOAM_USER_LIBBIN" ]
+then
+    echo "Allwclean: FOAM_USER_LIBBIN is not set." >&2
+    echo "Source your OpenFOAM environment first." >&2
+    exit 1
+fi
+
+## Remove build artefacts
+wclean libso src/openFOAM/functionObjects/radexRead
+wclean libso src/openFOAM/functionObjects/radexWrite
+wclean libso src/openFOAM/functionObjects/radexBase
+wclean libso src/openFOAM/radexIO
+
+## Remove the installed libraries, so that a stale one cannot be loaded by a case
+for name in radexRead radexWrite radexBase radexIO
+do
+    rm -f "$FOAM_USER_LIBBIN/lib$name".*
+done
+
+## Remove Python build artefacts, leaving any installed package alone
+rm -rf src/python/*.egg-info build dist
+find src/python -name __pycache__ -type d -exec rm -rf {} +

@@ -1,0 +1,59 @@
+Driver: Making client
+Driver: Starting app
+               App: Creating client
+               App: Client created
+               App: Waiting for scalar key `py-int`
+Driver: Setting Int
+               App: Got key `py-int` has value 123
+
+               App: Waiting for scalar key `py-double`
+Driver: Setting Double
+               App: Got key `py-double` has value 9.87
+
+               App: Waiting for scalar key `py-np-float`
+Driver: Setting Numpy Int
+               App: Got key `py-np-float` has value 45.6
+
+               App: Waiting for tensor key `py-int-tensor`
+Driver: Setting Int Tensor
+               App: Got key `py-int-tensor`
+                     |- Data: [ 0, 1, 2, 3, ]
+                     \- Dims: [ 4, ]
+
+               App: Waiting for tensor key `py-float-tensor`
+Driver: Setting Float Tensor
+Driver: Looking for keys
+Driver: Waiting for scalar key `cpp-double`
+               App: Got key `py-float-tensor`
+                     |- Data: [ 0.000000, 1.000000, 2.000000, 3.000000, 4.000000, 5.000000, 6.000000, 7.000000, 8.000000, 9.000000, 10.000000, 11.000000, ]
+                     \- Dims: [ 6, 2, ]
+
+               App: Setting Double
+Driver: Got scalar:
+        |- Type: float64
+        \- Value: 1.23
+
+Driver: Waiting for scalar key `cpp-int`
+               App: Setting Int
+Driver: Got scalar:
+        |- Type: int32
+        \- Value: 987
+
+Driver: Waiting for tensor key `cpp-double-tensor`
+               App: Setting Double Tensor
+Driver: Got tensor:
+        |- Type: float64
+        |- Dims: (4, 3)
+        \- Data: [ 0.  1.  2.  3.  4.  5.  6.  7.  8.  9. 10. 11.]
+
+Driver: Waiting for tensor key `cpp-long-tensor`
+               App: Setting Long Tensor
+Driver: Got tensor:
+        |- Type: int32
+        |- Dims: (2, 2, 2)
+        \- Data: [1 2 3 4 5 6 7 8]
+
+Driver: Setting a py object
+Driver: Getting a py object
+Driver: Got object `C(msg='spam-and-eggs')`
++++ head proc exited, code 0

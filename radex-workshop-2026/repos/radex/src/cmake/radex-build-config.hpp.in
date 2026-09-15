@@ -1,0 +1,16 @@
+#ifndef __RADEX_BUILD_CONFIG_HPP__
+#define __RADEX_BUILD_CONFIG_HPP__
+
+#if @RADEX_BUILD_HAS_DRAGON@
+#define RADEX_HAS_DRAGON
+#else
+#undef RADEX_HAS_DRAGON
+#endif
+
+#if @RADEX_BUILD_HAS_SMARTREDIS@
+#define RADEX_HAS_SMARTREDIS
+#else
+#undef RADEX_HAS_SMARTREDIS
+#endif
+
+#endif

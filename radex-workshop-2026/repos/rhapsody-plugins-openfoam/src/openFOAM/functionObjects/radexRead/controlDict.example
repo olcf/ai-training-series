@@ -1,0 +1,40 @@
+// Example controlDict `functions` entry for radexRead.
+//
+// Add the block below into the `functions { }` section of your
+// system/controlDict.  The `libs` entry must match the library name
+// produced by `wmake` (libradexRead.so).
+
+/*
+functions
+{
+    radexFields
+    {
+        // Reads named fields from a radex key-value store at every time
+        // step. Each field is read from the key:
+        //   <fieldName>_<timeStep>_<subdomainId>
+        // where subdomainId == Pstream::myProcNo().
+        //
+        // The radex backend is selected at compile time:
+        //   Dragon DDict  (default)  – omit -DRADEX_BACKEND_REDIS
+        //   SmartRedis               – add  -DRADEX_BACKEND_REDIS to EXE_INC
+        //
+        // Dragon DDict requires the RADEX_STORE environment variable to be
+        // set to the DDict descriptor before the solver is launched.
+
+        type            radexRead;
+        libs            (radexRead);
+
+        // Comma- or space-separated list of volScalarField / volVectorField
+        // names to import.
+        fields          (U p nut nuTilda);
+
+        // By default, each read blocks until the value appears in the store
+        // (wait_for_* semantics). Set wait false; to instead fail with a
+        // warning if the value is not yet present (get_* semantics).
+        wait            true;
+
+        // Timeout in seconds, used only when wait is true.
+        timeout         30;
+    }
+}
+*/

@@ -1,0 +1,10 @@
+module load cmake PrgEnv-gnu miniforge3
+
+conda activate /lustre/orion/stf007/world-shared/atramirez/rhapsody-training/workshop-env/
+
+source /lustre/orion/stf007/world-shared/atramirez/rhapsody-training/OpenFOAM-v2506/etc/bashrc
+
+export PATH="/lustre/orion/stf007/world-shared/atramirez/rhapsody-training/workshop-env/lib/python3.12/site-packages/smartsim/_core/bin/:$PATH"
+
+export LD_LIBRARY_PATH="/lustre/orion/stf007/world-shared/atramirez/rhapsody-training/rhapsody-plugins-openfoam/install/lib/:$LD_LIBRARY_PATH"
+

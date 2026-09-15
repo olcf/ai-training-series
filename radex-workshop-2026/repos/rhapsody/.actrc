@@ -1,0 +1,24 @@
+# act configuration for local testing
+# Place this file as .actrc in your project root
+
+# In-container socket to mount
+--container-daemon-socket /var/run/docker.sock
+
+# Use different Docker images for different architectures
+-P self-hosted=ghcr.io/catthehacker/ubuntu:act-latest
+# -P ubuntu-latest=catthehacker/ubuntu:act-latest
+# -P ubuntu-22.04=catthehacker/ubuntu:act-22.04
+# -P ubuntu-20.04=catthehacker/ubuntu:act-20.04
+
+# Set environment variables for local testing
+--env GITHUB_TOKEN=dummy_token
+--env CODECOV_TOKEN=dummy_token
+
+# Use local platform
+--use-gitignore
+
+# Verbose output
+# --verbose
+
+# Don't pull Docker images if they already exist
+--pull=false

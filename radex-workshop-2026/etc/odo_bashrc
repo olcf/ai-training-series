@@ -1,0 +1,9 @@
+module load cmake PrgEnv-gnu miniforge3
+
+conda activate /gpfs/wolf2/olcf/stf007/world-shared/rhapsody/envs/odo/py312-smartsim
+
+source /gpfs/wolf2/olcf/stf007/world-shared/rhapsody/OpenFOAM-v2506/etc/bashrc
+
+export PATH="/gpfs/wolf2/olcf/stf007/world-shared/rhapsody/envs/odo/py312-smartsim/lib/python3.12/site-packages/smartsim/_core/bin/:$PATH"
+
+export LD_LIBRARY_PATH="/gpfs/wolf2/olcf/stf007/world-shared/rhapsody/rhapsody-plugins-openfoam/install/lib/:$LD_LIBRARY_PATH"
