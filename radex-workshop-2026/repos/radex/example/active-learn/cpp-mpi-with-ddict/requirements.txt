@@ -1,6 +1,0 @@
-scikit-learn
-numpy
-dragonhpc[telemetry]>=0.14.1
-radical.asyncflow==0.5.0
-rhapsody-py @ git+https://github.com/radical-cybertools/rhapsody.git@feature/pre-release-0.5.0
-ROSE @ git+https://github.com/radical-cybertools/ROSE.git@main

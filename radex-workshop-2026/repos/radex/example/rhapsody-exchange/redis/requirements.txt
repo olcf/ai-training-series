@@ -1,2 +1,0 @@
-numpy
-rhapsody-py @ git+https://github.com/radical-cybertools/rhapsody.git@feature/data-backends

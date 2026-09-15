@@ -1,3 +1,0 @@
-radexRead.C
-
-LIB = $(FOAM_USER_LIBBIN)/libradexRead

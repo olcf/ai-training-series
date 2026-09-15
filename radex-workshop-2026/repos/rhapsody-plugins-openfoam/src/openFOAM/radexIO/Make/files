@@ -1,3 +1,0 @@
-radexIO.C
-
-LIB = $(FOAM_USER_LIBBIN)/libradexIO

@@ -1,0 +1,3 @@
+[submodule "radex-2026/workshop"]
+	path = radex-2026/workshop
+	url = https://github.com/CrayLabs/radex-workshop-2026.git

@@ -1,3 +1,0 @@
-
-./src/fortran/client/*.inc linguist-language=Fortran
-./src/fortran/dataset/*.inc linguist-language=Fortran

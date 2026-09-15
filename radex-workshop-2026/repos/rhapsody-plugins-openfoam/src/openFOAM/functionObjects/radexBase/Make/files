@@ -1,3 +1,0 @@
-radexBase.C
-
-LIB = $(FOAM_USER_LIBBIN)/libradexBase

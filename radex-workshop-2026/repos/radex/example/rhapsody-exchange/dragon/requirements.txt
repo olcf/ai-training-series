@@ -1,3 +1,0 @@
-numpy
-dragonhpc[telemetry]>=0.14.1
-rhapsody-py @ git+https://github.com/radical-cybertools/rhapsody.git@feature/data-backends
